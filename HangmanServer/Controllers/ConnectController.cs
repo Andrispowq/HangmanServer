@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Concurrent;
 
 namespace HangmanServer.Controllers
 {
@@ -9,11 +7,6 @@ namespace HangmanServer.Controllers
     {
         public Guid clientID { get; set; }
         public bool? apple {  get; set; }
-    }
-
-    internal static class Connections
-    {
-        public static ConcurrentDictionary<Guid, Session> sessions = new();
     }
 
     [ApiController]

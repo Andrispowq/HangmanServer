@@ -12,9 +12,9 @@ namespace HangmanServer
         private double timeout;
 
         private Guid sessionID;
-        //private User? userData;
+        private User? userData;
 
-        //private static double DefaultTimeout = Config.GetInstance().config.timeoutMinutes * 60.0; //5 minutes
+        private static double DefaultTimeout = Config.GetInstance().config.timeoutMinutes * 60.0;
 
         public Session(Guid clientID)
         {
@@ -22,10 +22,10 @@ namespace HangmanServer
             this.connectionID = Guid.NewGuid();
             this.clientID = clientID;
             this.rsa = RSA.Create();
-            //this.timeout = DefaultTimeout;
+            this.timeout = DefaultTimeout;
         }
 
-        /*public void LoginUser(User userData)
+        public void LoginUser(User userData)
         {
             this.sessionID = Guid.NewGuid();
             this.userData = userData;
@@ -35,7 +35,7 @@ namespace HangmanServer
         {
             this.sessionID = Guid.Empty;
             this.userData = null;
-        }*/
+        }
 
         public string Decrypt(string encrypted)
         {
@@ -52,10 +52,10 @@ namespace HangmanServer
             }
         }
 
-       /* public User? GetUserData()
+        public User? GetUserData()
         {
             return userData;
-        }*/
+        }
 
         public Guid GetConnectionID()
         {
@@ -83,7 +83,7 @@ namespace HangmanServer
             return rsa.ExportRSAPublicKey();
         }
 
-        /*public void RefreshSession()
+        public void RefreshSession()
         {
             timeout = DefaultTimeout;
         }
@@ -101,7 +101,7 @@ namespace HangmanServer
         public bool IsTimedOut()
         {
             return timeout < 0.0;
-        }*/
+        }
 
         public override string ToString()
         {
@@ -116,9 +116,9 @@ namespace HangmanServer
             else
             {
                 str += "\n\t\tSessionID: " + sessionID.ToString();
-                //str += "\n\t\tUsername: " + userData?.username;
-                //str += "\n\t\tUserID: " + userData?.ID;
-                //str += "\n\t\tPassword hash: " + userData?.password_hash2;
+                str += "\n\t\tUsername: " + userData?.username;
+                str += "\n\t\tUserID: " + userData?.ID;
+                str += "\n\t\tPassword hash: " + userData?.password_hash2;
             }
 
             return str;
