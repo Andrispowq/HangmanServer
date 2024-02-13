@@ -52,4 +52,107 @@
         public Guid refreshedTokenID { get; set; }
     }
 
+    internal class Requests
+    {
+
+        public UserDatabase database;
+
+        public Requests(string db_location)
+        {
+            database = new UserDatabase(db_location);
+        }
+
+        public UserExistsResult HandleUserExists(string username)
+        {
+            UserExistsResult result = new();
+            result.result = database.UserExists(username);
+            return result;
+        }
+
+        public UserLoginResult HandleUserLogin(Session session, string username, string password, out User? user, bool plain = false)
+        {
+            user = null;
+            if (database.UserExists(username))
+            {
+                string password_decrypted = password;
+                if (!plain)
+                {
+                    password_decrypted = session.Decrypt(password);
+                }
+
+                string pass_try = database.SecurePassword(database.GetUserID(username), password_decrypted);
+                string hash = Crypto.GetHashString(pass_try);
+                database.TryLogin(username, hash, out user);
+            }
+
+            UserLoginResult result = new();
+            result.result = false;
+            result.userID = "";
+            result.key = "";
+            result.data = "";
+
+            if (user != null)
+            {
+                result.result = true;
+                result.userID = user.ID;
+                result.key = user.encryption_key;
+                result.data = user.data_encrypted;
+            }
+
+            return result;
+        }
+
+        public UserUpdateResult HandleUpdateUser(User? user, string data)
+        {
+            UserUpdateResult result = new();
+            result.result = false;
+
+            if (user != null)
+            {
+                user.data_encrypted = data;
+                user.SaveData();
+                result.result = true;
+            }
+
+            return result;
+        }
+
+        public UserCreateResult HandleCreateUser(Session session, string username, string password, bool plain = false)
+        {
+            User? user = null;
+            string password_decrypted = password;
+            if (!plain)
+            {
+                password_decrypted = session.Decrypt(password);
+            }
+
+            string secure_pass = database.SecurePassword(database.GetUserID(username), password_decrypted);
+            bool res = database.CreateNewUser(username, secure_pass, out user);
+
+            UserCreateResult result = new();
+            result.result = false;
+            result.userID = "";
+            result.key = "";
+            result.data = "";
+
+            if (user != null)
+            {
+                result.result = true;
+                result.userID = user.ID;
+                result.key = user.encryption_key;
+                result.data = user.data_encrypted;
+            }
+
+            return result;
+        }
+
+        public UserWordResult HandleWordRequest()
+        {
+            UserWordResult result = new();
+            result.result = true;
+            result.word = Words.GetWord();
+            return result;
+        }
+    }
+
 }
