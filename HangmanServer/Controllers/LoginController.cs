@@ -21,40 +21,48 @@ namespace HangmanServer.Controllers
             UserLoginResult result = new UserLoginResult();
             result.result = false;
 
-            bool found = false;
-            foreach (var session in Connections.sessions.Values)
+            if (Connections.sessions.ContainsKey(request.connectionID))
             {
-                User? user = session.GetUserData();
-                if (user != null)
+                Session loginSession = Connections.sessions[request.connectionID];
+
+                bool found = false;
+                foreach (var session in Connections.sessions.Values)
                 {
-                    if (user.username == request.username)
+                    User? user = session.GetUserData();
+                    if (user != null)
                     {
-                        found = true;
-                        break;
+                        if (user.username == request.username)
+                        {
+                            found = true;
+                            break;
+                        }
                     }
                 }
-            }
 
-            if (!found)
-            {
-                User? user;
-                result = requests.HandleUserLogin(session, username, password, out user, isPlain);
-
-                if (user != null)
+                if (!found)
                 {
-                    session.LoginUser(user);
-                    result.sessionID = session.GetSessionID();
+                    User? user;
+                    result = RequestHandlers.HandleUserLogin(loginSession, request.username, request.password, out user, false);
+
+                    if (user != null)
+                    {
+                        loginSession.LoginUser(user);
+                        result.sessionID = loginSession.GetSessionID();
+                    }
+                    else
+                    {
+                        result.message = "ERROR: bad login info";
+                    }
                 }
                 else
                 {
-                    result.message = "ERROR: bad login info";
+                    result.message = "ERROR: user is already logged in";
                 }
             }
             else
             {
-                result.message = "ERROR: user is already logged in";
+                result.message = "ConnectionID not found!";
             }
-
 
             return Ok(result);
         }

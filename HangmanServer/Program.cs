@@ -7,6 +7,8 @@ namespace HangmanServer
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            Server.InitialiseServer();
+
             // Add services to the container.
 
             builder.Services.AddControllers();

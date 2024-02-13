@@ -9,5 +9,9 @@ namespace HangmanServer
 
     public class Server
     {
+        public static void InitialiseServer()
+        {
+            Config.LoadConfigData("config.json");
+        }
     }
 }

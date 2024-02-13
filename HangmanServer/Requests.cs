@@ -52,24 +52,18 @@
         public Guid refreshedTokenID { get; set; }
     }
 
-    internal class Requests
+    internal static class RequestHandlers
     {
+        public static UserDatabase database = new UserDatabase($"{Config.GetInstance().config.serverFolder}/user_database.json");
 
-        public UserDatabase database;
-
-        public Requests(string db_location)
-        {
-            database = new UserDatabase(db_location);
-        }
-
-        public UserExistsResult HandleUserExists(string username)
+        public static UserExistsResult HandleUserExists(string username)
         {
             UserExistsResult result = new();
             result.result = database.UserExists(username);
             return result;
         }
 
-        public UserLoginResult HandleUserLogin(Session session, string username, string password, out User? user, bool plain = false)
+        public static UserLoginResult HandleUserLogin(Session session, string username, string password, out User? user, bool plain = false)
         {
             user = null;
             if (database.UserExists(username))
@@ -102,7 +96,7 @@
             return result;
         }
 
-        public UserUpdateResult HandleUpdateUser(User? user, string data)
+        public static UserUpdateResult HandleUpdateUser(User? user, string data)
         {
             UserUpdateResult result = new();
             result.result = false;
@@ -117,7 +111,7 @@
             return result;
         }
 
-        public UserCreateResult HandleCreateUser(Session session, string username, string password, bool plain = false)
+        public static UserCreateResult HandleCreateUser(Session session, string username, string password, bool plain = false)
         {
             User? user = null;
             string password_decrypted = password;
@@ -146,7 +140,7 @@
             return result;
         }
 
-        public UserWordResult HandleWordRequest()
+        public static UserWordResult HandleWordRequest()
         {
             UserWordResult result = new();
             result.result = true;
@@ -154,5 +148,4 @@
             return result;
         }
     }
-
 }
