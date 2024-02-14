@@ -13,7 +13,7 @@ namespace HangmanServer.Controllers
     [Route("[controller]")]
     public class ExistsController : ControllerBase
     {
-        [HttpPost(Name = "Exists")]
+        [HttpGet(Name = "Exists")]
         public IActionResult Exists([FromBody] ExistsRequest request)
         {
             UserExistsResult result = new UserExistsResult();

@@ -20,7 +20,7 @@ namespace HangmanServer.Controllers
     [Route("[controller]")]
     public class EraseController : ControllerBase
     {
-        [HttpPost(Name = "Erase")]
+        [HttpDelete(Name = "Erase")]
         public IActionResult Erase([FromBody] EraseRequest request)
         {
             UserEraseResult result = new UserEraseResult();

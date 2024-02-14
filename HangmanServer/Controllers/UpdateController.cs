@@ -13,7 +13,7 @@ namespace HangmanServer.Controllers
     [Route("[controller]")]
     public class UpdateController : ControllerBase
     {
-        [HttpPost(Name = "Update")]
+        [HttpPut(Name = "Update")]
         public IActionResult Update([FromBody] UpdateRequest request)
         {
             UserUpdateResult result = new UserUpdateResult();
