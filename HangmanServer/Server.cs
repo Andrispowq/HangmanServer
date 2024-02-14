@@ -26,6 +26,11 @@ namespace HangmanServer
         public static TokenManager manager = new("tokens.json");
     }
 
+    internal static class Multiplayer
+    {
+        public static MultiplayerHandler handler = new();
+    }
+
     public class Server
     {
         public static void InitialiseServer()
