@@ -24,7 +24,10 @@ namespace HangmanServer
 
         public ConfigData config;
 
-        private Config() { }
+        private Config()
+        {
+            config = LoadConfigData("config.json");
+        }
 
         private static Config? instance = null;
         public static Config GetInstance()

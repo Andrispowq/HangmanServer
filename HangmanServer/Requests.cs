@@ -92,6 +92,10 @@
                 result.key = user.encryption_key;
                 result.data = user.data_encrypted;
             }
+            else
+            {
+                result.message = "Session has no active user!";
+            }
 
             return result;
         }
@@ -106,6 +110,10 @@
                 user.data_encrypted = data;
                 user.SaveData();
                 result.result = true;
+            }
+            else
+            {
+                result.message = "Session has no active user!";
             }
 
             return result;
@@ -135,6 +143,10 @@
                 result.userID = user.ID;
                 result.key = user.encryption_key;
                 result.data = user.data_encrypted;
+            }
+            else
+            {
+                result.message = "Session has no active user!";
             }
 
             return result;

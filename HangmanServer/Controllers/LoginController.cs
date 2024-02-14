@@ -9,6 +9,7 @@ namespace HangmanServer.Controllers
         public Guid connectionID { get; set; }
         public string username { get; set; } = "";
         public string password { get; set; } = "";
+        public bool? isPlain { get; set; }
     }
 
     [ApiController]
@@ -24,39 +25,53 @@ namespace HangmanServer.Controllers
             if (Connections.sessions.ContainsKey(request.connectionID))
             {
                 Session loginSession = Connections.sessions[request.connectionID];
-
-                bool found = false;
-                foreach (var session in Connections.sessions.Values)
+                if (loginSession.GetUserData() == null)
                 {
-                    User? user = session.GetUserData();
-                    if (user != null)
+                    bool found = false;
+                    foreach (var session in Connections.sessions.Values)
                     {
-                        if (user.username == request.username)
+                        User? user = session.GetUserData();
+                        if (user != null)
                         {
-                            found = true;
-                            break;
+                            if (user.username == request.username)
+                            {
+                                found = true;
+                                break;
+                            }
                         }
                     }
-                }
 
-                if (!found)
-                {
-                    User? user;
-                    result = RequestHandlers.HandleUserLogin(loginSession, request.username, request.password, out user, false);
-
-                    if (user != null)
+                    if (!found)
                     {
-                        loginSession.LoginUser(user);
-                        result.sessionID = loginSession.GetSessionID();
+                        if (RequestHandlers.database.UserExists(request.username))
+                        {
+                            User? user;
+                            result = RequestHandlers.HandleUserLogin(loginSession, request.username,
+                                request.password, out user, request.isPlain.HasValue ? request.isPlain.Value : false);
+
+                            if (user != null)
+                            {
+                                loginSession.LoginUser(user);
+                                result.sessionID = loginSession.GetSessionID();
+                            }
+                            else
+                            {
+                                result.message = "Password doesn't match!";
+                            }
+                        }
+                        else
+                        {
+                            result.message = "User doesn't exist!";
+                        }
                     }
                     else
                     {
-                        result.message = "ERROR: bad login info";
+                        result.message = "User is already logged in!";
                     }
                 }
                 else
                 {
-                    result.message = "ERROR: user is already logged in";
+                    result.message = "Session already has an active user!";
                 }
             }
             else
