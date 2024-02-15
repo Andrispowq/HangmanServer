@@ -13,7 +13,7 @@ namespace HangmanServer.Controllers.Multiplayer
     [Route("Multiplayer/[controller]")]
     public class JoinedController : ControllerBase
     {
-        [HttpGet(Name = "Joined")]
+        [HttpPut(Name = "Joined")]
         public IActionResult Joined([FromBody] MultiplayerJoinedRequest request)
         {
             MultiplayerJoinResult result = new MultiplayerJoinResult();

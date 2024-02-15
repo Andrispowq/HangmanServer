@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HangmanServer.Controllers
+namespace HangmanServer.Controllers.Account
 {
     public class UpdateRequest
     {
@@ -10,7 +10,7 @@ namespace HangmanServer.Controllers
     }
 
     [ApiController]
-    [Route("[controller]")]
+    [Route("Account/[controller]")]
     public class UpdateController : ControllerBase
     {
         [HttpPut(Name = "Update")]

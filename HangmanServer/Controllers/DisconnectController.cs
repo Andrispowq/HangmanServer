@@ -11,7 +11,7 @@ namespace HangmanServer.Controllers
     [Route("[controller]")]
     public class DisconnectController : ControllerBase
     {
-        [HttpPost(Name = "DestroyConnection")]
+        [HttpDelete(Name = "DestroyConnection")]
         public IActionResult DestroyConnection([FromBody] DisconnectRequest request)
         {
             DisconnectResult result = new DisconnectResult();

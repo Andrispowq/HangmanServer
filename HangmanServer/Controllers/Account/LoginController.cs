@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System;
 
-namespace HangmanServer.Controllers
+namespace HangmanServer.Controllers.Account
 {
     public class LoginRequest
     {
@@ -13,7 +13,7 @@ namespace HangmanServer.Controllers
     }
 
     [ApiController]
-    [Route("[controller]")]
+    [Route("Account/[controller]")]
     public class LoginController : ControllerBase
     {
         [HttpPost(Name = "Login")]

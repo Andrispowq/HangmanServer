@@ -12,7 +12,7 @@ namespace HangmanServer.Controllers
     [Route("[controller]")]
     public class WordQueryController : ControllerBase
     {
-        [HttpGet(Name = "WordQuery")]
+        [HttpPut(Name = "WordQuery")]
         public IActionResult WordQuery([FromBody] WordQueryRequest request)
         {
             UserWordResult result = new UserWordResult();

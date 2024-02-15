@@ -35,6 +35,12 @@ namespace HangmanServer
                 tokens = new List<TokenInfo>();
                 SaveTokens();
             }
+
+            foreach (var token in tokens)
+            {
+                Tokens.tokens.TryAdd(token.token, new Token(RequestHandlers.database, token));
+            }
+
         }
 
         public void AddToken(TokenInfo tokenInfo)

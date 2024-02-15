@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HangmanServer.Controllers
+namespace HangmanServer.Controllers.Account
 {
     public enum EraseKind
     {
@@ -17,7 +17,7 @@ namespace HangmanServer.Controllers
     }
 
     [ApiController]
-    [Route("[controller]")]
+    [Route("Account/[controller]")]
     public class EraseController : ControllerBase
     {
         [HttpDelete(Name = "Erase")]

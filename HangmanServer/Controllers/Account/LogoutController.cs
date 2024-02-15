@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HangmanServer.Controllers
+namespace HangmanServer.Controllers.Account
 {
     public class LogoutRequest
     {
@@ -12,10 +12,10 @@ namespace HangmanServer.Controllers
     }
 
     [ApiController]
-    [Route("[controller]")]
+    [Route("Account/[controller]")]
     public class LogoutController : ControllerBase
     {
-        [HttpPost(Name = "Logout")]
+        [HttpDelete(Name = "Logout")]
         public IActionResult Logout([FromBody] LogoutRequest request)
         {
             UserLogoutResult result = new UserLogoutResult();

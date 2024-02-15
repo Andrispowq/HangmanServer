@@ -284,7 +284,7 @@ namespace HangmanServer
                 OngoingGame game = new OngoingGame(joined, request);
 
                 //Notify the other player that a match has been found
-                MultiplayerJoinRequest result = new();
+                MultiplayerJoinResult result = new();
                 result.result = true;
                 result.matchID = game.matchID;
 
@@ -300,9 +300,9 @@ namespace HangmanServer
             return null;
         }
 
-        public CampaignGameStateRequest UpdateVersusGame(Guid matchID, Guid sessionID, char guess)
+        public CampaignGameStateResult UpdateVersusGame(Guid matchID, Guid sessionID, char guess)
         {
-            CampaignGameStateRequest request = new();
+            CampaignGameStateResult request = new();
             request.result = false;
 
             foreach (var game in ongoingGames)
@@ -311,7 +311,7 @@ namespace HangmanServer
                 {
                     request.result = true;
 
-                    if (game.type == GameType.Versus)
+                    if (game.type == GameType.Campaign)
                     {
                         if (game.challenger.GetSessionID() == sessionID)
                         {
@@ -400,13 +400,13 @@ namespace HangmanServer
                         else
                         {
                             request.result = false;
-                            request.message = "ERROR: sessionID not found";
+                            request.message = "SessionID not found!";
                         }
                     }
                     else
                     {
                         request.result = false;
-                        request.message = "ERROR: match corresponding to matchID isn't Versus";
+                        request.message = "Match corresponding to matchID isn't Campaign!";
                     }
                 }
             }
@@ -414,9 +414,9 @@ namespace HangmanServer
             return request;
         }
 
-        public CampaignGameStateRequest GetVersusGameState(Guid matchID, Guid sessionID)
+        public CampaignGameStateResult GetVersusGameState(Guid matchID, Guid sessionID)
         {
-            CampaignGameStateRequest request = new();
+            CampaignGameStateResult request = new();
             request.result = false;
 
             foreach (var game in ongoingGames)
@@ -425,7 +425,7 @@ namespace HangmanServer
                 {
                     request.result = true;
 
-                    if (game.type == GameType.Versus)
+                    if (game.type == GameType.Campaign)
                     {
                         if (game.challenger.GetSessionID() == sessionID)
                         {
@@ -446,13 +446,13 @@ namespace HangmanServer
                         else
                         {
                             request.result = false;
-                            request.message = "ERROR: sessionID not found";
+                            request.message = "SessionID not found!";
                         }
                     }
                     else
                     {
                         request.result = false;
-                        request.message = "ERROR: match corresponding to matchID isn't Versus";
+                        request.message = "Match corresponding to matchID isn't Campaign!";
                     }
                 }
             }

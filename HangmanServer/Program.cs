@@ -9,6 +9,8 @@ namespace HangmanServer
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            //Task.Run(Server.CommandThread);
+
             // Specify the URLs to listen on
             builder.WebHost.ConfigureKestrel(serverOptions =>
             {

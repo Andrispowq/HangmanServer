@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HangmanServer.Controllers
+namespace HangmanServer.Controllers.Account
 {
     public class CreateRequest
     {
@@ -13,7 +13,7 @@ namespace HangmanServer.Controllers
     }
 
     [ApiController]
-    [Route("[controller]")]
+    [Route("Account/[controller]")]
     public class CreateController : ControllerBase
     {
         [HttpPost(Name = "Create")]

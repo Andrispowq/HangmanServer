@@ -11,10 +11,10 @@ namespace HangmanServer.Controllers.Multiplayer
 
     [ApiController]
     [Route("Multiplayer/[controller]")]
-    public class JoinedController : ControllerBase
+    public class AbortController : ControllerBase
     {
-        [HttpDelete(Name = "Joined")]
-        public IActionResult Joined([FromBody] MultiplayerAbortRequest request)
+        [HttpDelete(Name = "Abort")]
+        public IActionResult Abort([FromBody] MultiplayerAbortRequest request)
         {
             RequestResult result = new RequestResult();
             result.result = false;
