@@ -72,23 +72,23 @@ namespace HangmanServer
             private static int DefaultWrongGuesses = 20;
             public int wrongGuesses = DefaultWrongGuesses;
             public int guessedWords = 0;
-            public String word = "";
-            public String guesses = "";
-            public String guessedWord = "";
+            public string word = "";
+            public string guesses = "";
+            public string guessedWord = "";
 
             public bool Lost()
             {
                 return wrongGuesses <= 0;
             }
 
-            public void SetWord(String word)
+            public void SetWord(string word)
             {
                 guesses = "";
                 this.word = word;
                 guessedWord = GetDisplayedWord();
             }
 
-            public String Guess(char c)
+            public string Guess(char c)
             {
                 guesses += c;
                 guessedWord = GetDisplayedWord();
@@ -108,9 +108,9 @@ namespace HangmanServer
                 return guessedWord;
             }
 
-            private String GetDisplayedWord()
+            private string GetDisplayedWord()
             {
-                String guessedWord = "";
+                string guessedWord = "";
                 foreach (char c in word)
                 {
                     if (guesses.Contains(c))
@@ -135,6 +135,14 @@ namespace HangmanServer
         public PlayerState challengerState = new PlayerState();
         public PlayerState challengedState = new PlayerState();
         public List<String> words = new List<String>();
+
+        public CampaignState()
+        {
+            string word = Words.GetWord();
+            words.Add(word);
+            challengerState.SetWord(word);
+            challengedState.SetWord(word);
+        }
 
         public override string ToString()
         {
@@ -185,12 +193,12 @@ namespace HangmanServer
     class MultiplayerJoinResult : RequestResult
     {
         public Guid? matchID { get; set; }
-        public String? opponent { get; set; }
+        public string? opponent { get; set; }
     }
 
     class CampaignGameStateResult : RequestResult
     {
-        public String guessedWord { get; set; } = "";
+        public string guessedWord { get; set; } = "";
         public int wrongGuessesLeft { get; set; }
         public GameState state { get; set; }
     }
