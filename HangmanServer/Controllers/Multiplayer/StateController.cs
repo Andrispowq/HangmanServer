@@ -17,7 +17,7 @@ namespace HangmanServer.Controllers.Multiplayer
         [HttpPost(Name = "State")]
         public IActionResult State([FromBody] StateRequest request)
         {
-            CampaignGameStateResult result = HangmanServer.Multiplayer.handler.GetVersusGameState(request.matchID, request.sessionID);
+            GameStateResult result = HangmanServer.Multiplayer.handler.GetGameState(request.matchID, request.sessionID);
             return Ok(result);
         }
     }

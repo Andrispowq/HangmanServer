@@ -24,6 +24,13 @@ namespace HangmanServer.Controllers.Account
             Session? session = Connections.FindSessionBySessionID(request.sessionID);
             if(session != null)
             {
+                HangmanServer.Multiplayer.handler.RemoveFromQueue(request.sessionID);
+                OngoingGame? game = HangmanServer.Multiplayer.handler.HasOngoingGame(request.sessionID);
+                if (game != null)
+                {
+                    HangmanServer.Multiplayer.handler.AbortGame(game);
+                }
+
                 session.LogoutUser();
                 result.result = true;
             }

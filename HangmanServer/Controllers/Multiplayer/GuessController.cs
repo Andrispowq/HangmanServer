@@ -18,12 +18,12 @@ namespace HangmanServer.Controllers.Multiplayer
         [HttpPut(Name = "Guess")]
         public IActionResult Guess([FromBody] GuessRequest request)
         {
-            CampaignGameStateResult result = new CampaignGameStateResult();
+            GameStateResult result = new GameStateResult();
             result.result = false;
 
             if (request.guess.Length == 1)
             {
-                result = HangmanServer.Multiplayer.handler.UpdateVersusGame(request.matchID,
+                result = HangmanServer.Multiplayer.handler.UpdateGame(request.matchID,
                     request.sessionID, request.guess[0]);
             }
             else
