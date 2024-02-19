@@ -23,7 +23,7 @@ namespace HangmanServer
 
         public TokenManager(string filename)
         {
-            path = $"{Config.GetInstance().config.serverFolder}/{filename}";
+            path = $"{Config.GetConfig().serverFolder}/{filename}";
 
             if (File.Exists(path))
             {

@@ -28,7 +28,7 @@ namespace HangmanServer
                 data = JsonSerializer.Deserialize<List<JSONData>>(json)!;
             }
 
-            string path = Config.GetInstance().config.serverFolder + "/players";
+            string path = Config.GetConfig().serverFolder + "/players";
             if (!FileSystem.DirectoryExists(path))
             {
                 FileSystem.CreateDirectory(path);

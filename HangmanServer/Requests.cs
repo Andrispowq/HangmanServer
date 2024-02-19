@@ -54,7 +54,7 @@
 
     internal static class RequestHandlers
     {
-        public static UserDatabase database = new UserDatabase($"{Config.GetInstance().config.serverFolder}/user_database.json");
+        public static UserDatabase database = new UserDatabase($"{Config.GetConfig().serverFolder}/user_database.json");
 
         public static UserExistsResult HandleUserExists(string username)
         {

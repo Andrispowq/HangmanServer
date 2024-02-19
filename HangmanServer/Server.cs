@@ -40,7 +40,13 @@ namespace HangmanServer
 
         public static void InitialiseServer()
         {
-            Config.GetInstance(); //loads the config
+            //loads the config at GetInstance()
+            if (!Directory.Exists(Config.GetConfig().serverFolder))
+            {
+                Console.WriteLine($"Creating directory {Config.GetConfig().serverFolder}");
+                Directory.CreateDirectory(Config.GetConfig().serverFolder);
+            }
+
             SetupCommands();
         }
 
@@ -48,7 +54,6 @@ namespace HangmanServer
         {
             Console.Write("> ");
 
-            string curr_command = "";
             var then = DateTime.UtcNow;
             while (true)
             {
@@ -57,28 +62,17 @@ namespace HangmanServer
                 double delta = diff.TotalSeconds;
                 then = DateTime.UtcNow;
 
-                if (Console.KeyAvailable)
+                string command = Console.ReadLine()!;
+                if (!string.IsNullOrEmpty(command))
                 {
-                    ConsoleKeyInfo key = Console.ReadKey(true);
-                    switch (key.Key)
+                    try
                     {
-                        case ConsoleKey.Enter:
-                            Console.WriteLine();
-                            int result = HandleCommand(curr_command);
-                            Console.Write("> ");
-                            curr_command = "";
-                            break;
-                        case ConsoleKey.Backspace:
-                            if (curr_command != "")
-                            {
-                                curr_command = curr_command.Substring(0, curr_command.Length - 1);
-                                Console.Write("\b \b");
-                            }
-                            break;
-                        default:
-                            Console.Write(key.KeyChar);
-                            curr_command += key.KeyChar;
-                            break;
+                        int result = HandleCommand(command);
+                        Console.Write("> ");
+                    }
+                    catch(Exception e)
+                    {
+                        Console.WriteLine($"ERROR: an exception {e} was thrown!\n> ");
                     }
                 }
 
@@ -127,6 +121,8 @@ namespace HangmanServer
                     Console.Write("> ");
                 }
             }
+
+            Environment.Exit(0);
         }
 
         private static int HandleCommand(string command)

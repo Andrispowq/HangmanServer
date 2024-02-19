@@ -11,9 +11,9 @@ namespace HangmanServer
         {
             if (words_array == null)
             {
-                if (File.Exists(Config.GetInstance().config.serverFolder + words_file))
+                if (File.Exists(Config.GetConfig().serverFolder + words_file))
                 {
-                    string words = File.ReadAllText(Config.GetInstance().config.serverFolder + words_file);
+                    string words = File.ReadAllText(Config.GetConfig().serverFolder + words_file);
                     words_array = words.Split('\n');
                 }
                 else

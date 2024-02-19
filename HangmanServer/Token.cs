@@ -57,7 +57,7 @@ namespace HangmanServer
                 loginRequest.key = user.encryption_key;
 
                 //Maybe there has been a login without the token, we need to keep the data updated
-                string filepath = Config.GetInstance().config.serverFolder + "/players/" + user.username;
+                string filepath = Config.GetConfig().serverFolder + "/players/" + user.username;
                 if (File.Exists(filepath))
                 {
                     user.data_encrypted = File.ReadAllText(filepath);

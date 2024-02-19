@@ -14,7 +14,7 @@ namespace HangmanServer
         private Guid sessionID;
         private User? userData;
 
-        private static double DefaultTimeout = Config.GetInstance().config.timeoutMinutes * 60.0;
+        private static double DefaultTimeout = Config.GetConfig().timeoutMinutes * 60.0;
 
         public Session(Guid clientID)
         {

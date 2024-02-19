@@ -29,7 +29,7 @@ namespace HangmanServer
                 this.password_hash2 = userData.password_hash2;
                 this.encryption_key = userData.encrypted_key;
 
-                string filepath = Config.GetInstance().config.serverFolder + "/players/" + username;
+                string filepath = Config.GetConfig().serverFolder + "/players/" + username;
                 if (File.Exists(filepath))
                 {
                     data_encrypted = File.ReadAllText(filepath);
@@ -54,7 +54,7 @@ namespace HangmanServer
                 throw new Exception("Bad encryption info");
             }
 
-            string filepath = Config.GetInstance().config.serverFolder + "/players/" + username;
+            string filepath = Config.GetConfig().serverFolder + "/players/" + username;
             if (File.Exists(filepath))
             {
                 data_encrypted = File.ReadAllText(filepath);
@@ -81,7 +81,7 @@ namespace HangmanServer
         {
             data_encrypted = "";
 
-            string filepath = Config.GetInstance().config.serverFolder + "/players/" + username;
+            string filepath = Config.GetConfig().serverFolder + "/players/" + username;
             if (File.Exists(filepath))
             {
                 File.Delete(filepath);
@@ -108,7 +108,7 @@ namespace HangmanServer
 
         public void SaveData()
         {
-            File.WriteAllText(Config.GetInstance().config.serverFolder + "/players/" + username, data_encrypted);
+            File.WriteAllText(Config.GetConfig().serverFolder + "/players/" + username, data_encrypted);
         }
 
         public void GenerateUserIdentification(string password_hash1)

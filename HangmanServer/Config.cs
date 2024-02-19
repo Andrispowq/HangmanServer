@@ -22,22 +22,15 @@ namespace HangmanServer
         private static int DefaultTimeoutMinutes = 5;
         private static string DefaultServerFolder = "HangmanServerData";
 
-        public ConfigData config;
-
-        private Config()
+        private static ConfigData? config = null;
+        public static ConfigData GetConfig()
         {
-            config = LoadConfigData("config.json");
-        }
-
-        private static Config? instance = null;
-        public static Config GetInstance()
-        {
-            if (instance == null)
+            if (config == null)
             {
-                instance = new Config();
+                config = LoadConfigData("HangmanServerConfig.json");
             }
 
-            return instance;
+            return config.Value;
         }
 
         public static ConfigData LoadConfigData(string configFile)
@@ -48,6 +41,7 @@ namespace HangmanServer
             {
                 string json = File.ReadAllText(configFile);
                 data = JsonSerializer.Deserialize<ConfigData>(json);
+                Console.WriteLine($"Config loaded: {data}");
             }
             else
             {
@@ -61,6 +55,7 @@ namespace HangmanServer
 
                 string json = JsonSerializer.Serialize(data);
                 File.WriteAllText(configFile, json);
+                Console.WriteLine($"Config created: {data}");
             }
 
             return data;

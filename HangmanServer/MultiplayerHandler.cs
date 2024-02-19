@@ -75,10 +75,21 @@ namespace HangmanServer
             public string word = "";
             public string guesses = "";
             public string guessedWord = "";
+            public DateTime lostTime;
 
             public bool Lost()
             {
                 return wrongGuesses <= 0;
+            }
+
+            public int GetGuessedLetters()
+            {
+                return guessedWord.Count(c => c != '_');
+            }
+
+            public int GetWrongGuesses()
+            {
+                return guesses.Count(c => !word.Contains(c));
             }
 
             public void SetWord(string word)
@@ -119,7 +130,7 @@ namespace HangmanServer
                     }
                     else
                     {
-                        guessedWord += " ";
+                        guessedWord += "_";
                     }
                 }
 
@@ -135,6 +146,7 @@ namespace HangmanServer
         public PlayerState challengerState = new PlayerState();
         public PlayerState challengedState = new PlayerState();
         public List<String> words = new List<String>();
+        public bool challengerLostFirst = false;
 
         public CampaignState()
         {
@@ -142,6 +154,102 @@ namespace HangmanServer
             words.Add(word);
             challengerState.SetWord(word);
             challengedState.SetWord(word);
+        }
+
+        public string GuessChallenger(char guess)
+        {
+            string guessedWord = challengerState.guessedWord;
+            if (!challengerState.Lost())
+            {
+                guessedWord = challengerState.Guess(guess);
+                if (guessedWord == challengerState.word)
+                {
+                    //no new words have been added
+                    if (words.Last() == challengerState.word)
+                    {
+                        words.Add(Words.GetWord());
+                    }
+                    challengerState.SetWord(words.Last());
+                }
+            }
+            else if(!challengedState.Lost())
+            {
+                challengerLostFirst = true;
+            }
+
+            UpdateState();
+            return guessedWord;
+        }
+
+        public string GuessChallenged(char guess)
+        {
+            string guessedWord = challengedState.guessedWord;
+            if (!challengedState.Lost())
+            {
+                guessedWord = challengedState.Guess(guess);
+                if (guessedWord == challengedState.word)
+                {
+                    //no new words have been added
+                    if (words.Last() == challengedState.word)
+                    {
+                        words.Add(Words.GetWord());
+                    }
+                    challengedState.SetWord(words.Last());
+                }
+            }
+
+            UpdateState();
+            return guessedWord;
+        }
+
+        public void UpdateState()
+        {
+            if (!(challengerState.Lost() && challengedState.Lost()))
+                return;
+
+            if (challengerState.guessedWords > challengedState.guessedWords)
+            {
+                state = GameState.ChallengerWon;
+                return;
+            }
+            else if (challengerState.guessedWords < challengedState.guessedWords)
+            {
+                state = GameState.ChallengedWon;
+                return;
+            }
+
+            if(challengerState.GetGuessedLetters() > challengedState.GetGuessedLetters())
+            {
+                state = GameState.ChallengerWon;
+                return;
+            }
+            else if(challengerState.GetGuessedLetters() < challengedState.GetGuessedLetters())
+            {
+                state = GameState.ChallengedWon;
+                return;
+            }
+
+            if (challengerState.GetWrongGuesses() < challengedState.GetWrongGuesses())
+            {
+                state = GameState.ChallengerWon;
+                return;
+            }
+            else if (challengerState.GetWrongGuesses() > challengedState.GetWrongGuesses())
+            {
+                state = GameState.ChallengedWon;
+                return;
+            }
+
+            if(challengerLostFirst)
+            {
+                state = GameState.ChallengedWon;
+                return;
+            }
+            else
+            {
+                state = GameState.ChallengerWon;
+                return;
+            }
         }
 
         public override string ToString()
@@ -324,40 +432,8 @@ namespace HangmanServer
                         if (game.challenger.GetSessionID() == sessionID)
                         {
                             CampaignState versus = (game.state as CampaignState)!;
+                            string guessedWord = versus.GuessChallenger(guess);
                             CampaignState.PlayerState state = versus.challengerState;
-                            String guessedWord = state.Guess(guess);
-                            if (guessedWord == state.word)
-                            {
-                                //no new words have been added
-                                if (versus.words.Last() == state.word)
-                                {
-                                    versus.words.Add(Words.GetWord());
-                                }
-                                state.SetWord(versus.words.Last());
-                            }
-
-                            if (state.Lost() || versus.challengedState.Lost())
-                            {
-                                if (state.guessedWords > versus.challengedState.guessedWords)
-                                {
-                                    game.state.state = GameState.ChallengerWon;
-                                }
-                                else if (state.guessedWords < versus.challengedState.guessedWords)
-                                {
-                                    game.state.state = GameState.ChallengedWon;
-                                }
-                                else
-                                {
-                                    if (state.Lost())
-                                    {
-                                        game.state.state = GameState.ChallengedWon;
-                                    }
-                                    else
-                                    {
-                                        game.state.state = GameState.ChallengerWon;
-                                    }
-                                }
-                            }
 
                             request.state = game.state.state;
                             request.wrongGuessesLeft = state.wrongGuesses;
@@ -366,40 +442,8 @@ namespace HangmanServer
                         else if (game.challenged.GetSessionID() == sessionID)
                         {
                             CampaignState versus = (game.state as CampaignState)!;
+                            string guessedWord = versus.GuessChallenged(guess);
                             CampaignState.PlayerState state = versus.challengedState;
-                            String guessedWord = state.Guess(guess);
-                            if (guessedWord == state.word)
-                            {
-                                //no new words have been added
-                                if (versus.words.Last() == state.word)
-                                {
-                                    versus.words.Add(Words.GetWord());
-                                }
-                                state.SetWord(versus.words.Last());
-                            }
-
-                            if (state.Lost() || versus.challengerState.Lost())
-                            {
-                                if (state.guessedWords > versus.challengerState.guessedWords)
-                                {
-                                    game.state.state = GameState.ChallengedWon;
-                                }
-                                else if (state.guessedWords < versus.challengerState.guessedWords)
-                                {
-                                    game.state.state = GameState.ChallengerWon;
-                                }
-                                else
-                                {
-                                    if (state.Lost())
-                                    {
-                                        game.state.state = GameState.ChallengerWon;
-                                    }
-                                    else
-                                    {
-                                        game.state.state = GameState.ChallengedWon;
-                                    }
-                                }
-                            }
 
                             request.state = game.state.state;
                             request.wrongGuessesLeft = state.wrongGuesses;
