@@ -12,46 +12,6 @@ using System.Transactions;
 
 namespace HangmanServer
 {
-    class MultiplayerJoinResult : RequestResult
-    {
-        public Guid? matchID { get; set; }
-        public string? opponent { get; set; }
-    }
-
-    internal class VersusStateResult
-    {
-        public string guessedWord { get; set; } = "";
-        public int wordsLeft { get; set; }
-        public int wrongGuesses { get; set; }
-        public int opponentWrongGuesses { get; set; }
-        public int opponentWordsGuessed { get; set; }
-    }
-
-    internal class CampaignStateResult
-    {
-        public string guessedWord { get; set; } = "";
-        public int wrongGuessesLeft { get; set; }
-        public int opponentWrongGuessesLeft { get; set; }
-        public int opponentWordsGuessed { get; set; }
-    }
-
-    internal class CoopStateResult
-    {
-        public string guessedWord { get; set; } = "";
-        public bool playersTurn { get; set; }
-        public int goodGuesses { get; set; }
-        public int opponentGoodGuesses { get; set; }
-    }
-
-    internal class GameStateResult : RequestResult
-    {
-        public GameType type { get; set; }
-        public GameState state { get; set; }
-        public CampaignStateResult? campaign { get; set; }
-        public VersusStateResult? versus { get; set; }
-        public CoopStateResult? coop { get; set; }
-    }
-
     internal class OngoingGame
     {
         public Guid matchID = Guid.NewGuid();
@@ -74,6 +34,9 @@ namespace HangmanServer
                     break;
                 case GameType.Campaign:
                     state = new CampaignState();
+                    break;
+                case GameType.Cooperation:
+                    state = new CoopState();
                     break;
                 default:
                     state = new GameData();
@@ -121,11 +84,15 @@ namespace HangmanServer
                 case GameType.Cooperation:
                     if (challenger)
                     {
-
+                        string guessWord = (state as CoopState)!.GuessChallenger(guess);
+                        result.coop = GetCooperationState(challenger);
+                        result.coop!.guessedWord = guessWord;
                     }
                     else
                     {
-
+                        string guessWord = (state as CoopState)!.GuessChallenged(guess);
+                        result.coop = GetCooperationState(challenger);
+                        result.coop!.guessedWord = guessWord;
                     }
                     break;
             }
