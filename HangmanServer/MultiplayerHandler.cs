@@ -21,8 +21,10 @@ namespace HangmanServer
     internal class VersusStateResult
     {
         public string guessedWord { get; set; } = "";
+        public int wordsLeft { get; set; }
         public int wrongGuesses { get; set; }
-        public int opponentWrongGuessesLeft { get; set; }
+        public int opponentWrongGuesses { get; set; }
+        public int opponentWordsGuessed { get; set; }
     }
 
     internal class CampaignStateResult
@@ -67,6 +69,9 @@ namespace HangmanServer
             this.type = challenger.type;
             switch (type)
             {
+                case GameType.Versus:
+                    state = new VersusState();
+                    break;
                 case GameType.Campaign:
                     state = new CampaignState();
                     break;
@@ -88,11 +93,15 @@ namespace HangmanServer
                 case GameType.Versus:
                     if (challenger)
                     {
-
+                        string guessWord = (state as VersusState)!.GuessChallenger(guess);
+                        result.versus = GetVersusState(challenger);
+                        result.versus!.guessedWord = guessWord;
                     }
                     else
                     {
-
+                        string guessWord = (state as VersusState)!.GuessChallenged(guess);
+                        result.versus = GetVersusState(challenger);
+                        result.versus!.guessedWord = guessWord;
                     }
                     break;
                 case GameType.Campaign:
@@ -149,7 +158,25 @@ namespace HangmanServer
 
         public VersusStateResult GetVersusState(bool challenger)
         {
-            return new VersusStateResult();
+            VersusStateResult result = new VersusStateResult();
+            VersusState vsState = (state as VersusState)!;
+            if(challenger)
+            {
+                result.wrongGuesses = vsState.challengerState.wrongGuesses;
+                result.wordsLeft = VersusState.PlayerState.DefaultWords - vsState.challengerState.guessedWords;
+                result.opponentWrongGuesses = vsState.challengedState.wrongGuesses;
+                result.opponentWordsGuessed = vsState.challengedState.guessedWords;
+                result.guessedWord = vsState.challengerState.guessedWord;
+            }
+            else
+            {
+                result.wrongGuesses = vsState.challengedState.wrongGuesses;
+                result.wordsLeft = VersusState.PlayerState.DefaultWords - vsState.challengedState.guessedWords;
+                result.opponentWrongGuesses = vsState.challengerState.wrongGuesses;
+                result.opponentWordsGuessed = vsState.challengerState.guessedWords;
+                result.guessedWord = vsState.challengedState.guessedWord;
+            }
+            return result;
         }
 
         public CampaignStateResult GetCampaignState(bool challenger)

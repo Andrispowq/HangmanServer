@@ -19,7 +19,7 @@ namespace HangmanServer
         private static string DefaultServerIP = "0.0.0.0";
         private static int DefaultServerPort = 6969;
         private static string DefaultServerName = "HangmanServer_v1.0";
-        private static int DefaultTimeoutMinutes = 5;
+        private static int DefaultTimeoutMinutes = 30;
         private static string DefaultServerFolder = "HangmanServerData";
 
         private static ConfigData? config = null;
