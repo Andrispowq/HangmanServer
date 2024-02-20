@@ -169,7 +169,22 @@ namespace HangmanServer
 
         public CoopStateResult GetCooperationState(bool challenger)
         {
-            return new CoopStateResult();
+            CoopStateResult result = new CoopStateResult();
+            CoopState coState = (state as CoopState)!;
+            result.guessedWord = coState.guessedWord;
+            if (challenger)
+            {
+                result.goodGuesses = coState.challengerState.goodGuesses;
+                result.opponentGoodGuesses = coState.challengedState.goodGuesses;
+                result.playersTurn = coState.challengersRound;
+            }
+            else
+            {
+                result.goodGuesses = coState.challengedState.goodGuesses;
+                result.opponentGoodGuesses = coState.challengerState.goodGuesses;
+                result.playersTurn = !coState.challengersRound;
+            }
+            return result;
         }
 
         public void Update(double delta)
