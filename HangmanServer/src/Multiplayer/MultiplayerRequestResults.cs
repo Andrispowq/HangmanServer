@@ -30,6 +30,7 @@ namespace HangmanServer
         public bool playersTurn { get; set; }
         public int goodGuesses { get; set; }
         public int opponentGoodGuesses { get; set; }
+        public string totalGuesses { get; set; } = "";
     }
 
     internal class GameStateResult : RequestResult

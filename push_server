@@ -1,3 +1,4 @@
 dotnet publish -c Release -r linux-x64 --self-contained true  
-scp HangmanServer/bin/Release/net7.0/linux-x64/publish/* andras@79.139.62.36:~/HangmanServer
+scp HangmanServer/bin/Release/net7.0/linux-x64/publish/HangmanServer andras@79.139.62.36:~/HangmanServer
+scp HangmanServer/bin/Release/net7.0/linux-x64/publish/HangmanServer.dll andras@79.139.62.36:~/HangmanServer
 ssh andras@79.139.62.36

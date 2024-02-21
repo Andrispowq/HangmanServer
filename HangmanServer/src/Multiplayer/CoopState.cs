@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Net.NetworkInformation;
+
 namespace HangmanServer
 {
     class CoopState : GameData
@@ -22,16 +24,18 @@ namespace HangmanServer
 
         public PlayerState challengerState = new PlayerState();
         public PlayerState challengedState = new PlayerState();
-        public List<String> words = new List<String>();
+        public List<string> words = new List<string>();
 
         public string word = "";
         public string guesses = "";
         public string guessedWord = "";
 
-        public static int DefaultWords = 5;
+        public static int DefaultWords = 3;
         public int guessedWords = 0;
 
         public bool challengersRound = true;
+        public bool requestedGuessedWord = false;
+        public bool challengerGuessed = false;
 
         public CoopState()
         {
@@ -109,10 +113,10 @@ namespace HangmanServer
                 if (guessedWords != DefaultWords)
                 {
                     _guessedWord = Guess(true, guess);
-                    if (_guessedWord == word)
+                    if(_guessedWord == word)
                     {
-                        words.Add(Words.GetWord());
-                        SetWord(words.Last());
+                        guessedWords++;
+                        challengerGuessed = true;
                     }
                 }
             }
@@ -133,8 +137,8 @@ namespace HangmanServer
                     _guessedWord = Guess(false, guess);
                     if (_guessedWord == word)
                     {
-                        words.Add(Words.GetWord());
-                        SetWord(words.Last());
+                        guessedWords++;
+                        challengerGuessed = false;
                     }
                 }
             }
@@ -147,7 +151,7 @@ namespace HangmanServer
         {
             RefreshGame();
 
-            if (guessedWords != DefaultWords)
+            if (guessedWords < DefaultWords)
                 return;
 
             if (challengerState.goodGuesses > challengedState.goodGuesses)

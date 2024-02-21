@@ -177,12 +177,23 @@ namespace HangmanServer
                 result.goodGuesses = coState.challengerState.goodGuesses;
                 result.opponentGoodGuesses = coState.challengedState.goodGuesses;
                 result.playersTurn = coState.challengersRound;
+                result.totalGuesses = coState.guesses;
             }
             else
             {
                 result.goodGuesses = coState.challengedState.goodGuesses;
                 result.opponentGoodGuesses = coState.challengerState.goodGuesses;
                 result.playersTurn = !coState.challengersRound;
+                result.totalGuesses = coState.guesses;
+            }
+            if (result.guessedWord == coState.word)
+            {
+                if (challenger != coState.challengerGuessed)
+                {
+                    coState.challengerGuessed = false;
+                    coState.words.Add(Words.GetWord());
+                    coState.SetWord(coState.words.Last());
+                }
             }
             return result;
         }
