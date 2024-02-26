@@ -64,6 +64,12 @@ namespace HangmanServer
                 double delta = diff.TotalSeconds;
                 then = DateTime.UtcNow;
 
+                //If the time passed is more than one minute, the server was likely out of focus, and delta can not be reliably used
+                if(delta > 60.0)
+                {
+                    delta = 0.0;
+                }
+
                 string command = Console.ReadLine()!;
                 if (!string.IsNullOrEmpty(command))
                 {

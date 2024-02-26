@@ -1,6 +1,11 @@
-@HangmanServer_HostAddress = http://localhost:5162
+@HangmanServer_HostAddress = https://localhost:6970
 
-GET {{HangmanServer_HostAddress}}/weatherforecast/
-Accept: application/json
+POST {{HangmanServer_HostAddress}}/Connect
+Accept: */*
+Content-Type: application/json
+
+{
+  "clientID": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+}
 
 ###
