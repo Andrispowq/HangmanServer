@@ -22,13 +22,16 @@ namespace HangmanServer.Controllers.Multiplayer
             Session? session = Connections.FindSessionBySessionID(request.sessionID);
             if (session != null)
             {
-                OngoingGame? game = HangmanServer.Multiplayer.handler.HasOngoingGame(request.sessionID);
-                result.result = true;
-
-                if (game != null)
+                lock (HangmanServer.Multiplayer._lock)
                 {
-                    result.matchID = game.matchID;
-                    result.opponent = game.challenged.GetUserData()!.username;
+                    OngoingGame? game = HangmanServer.Multiplayer.handler.HasOngoingGame(request.sessionID);
+                    result.result = true;
+
+                    if (game != null)
+                    {
+                        result.matchID = game.matchID;
+                        result.opponent = game.challenged.GetUserData()!.username;
+                    }
                 }
             }
             else

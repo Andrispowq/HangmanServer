@@ -23,8 +23,11 @@ namespace HangmanServer.Controllers.Multiplayer
 
             if (request.guess.Length == 1)
             {
-                result = HangmanServer.Multiplayer.handler.UpdateGame(request.matchID,
+                lock (HangmanServer.Multiplayer._lock)
+                {
+                    result = HangmanServer.Multiplayer.handler.UpdateGame(request.matchID,
                     request.sessionID, request.guess[0]);
+                }
             }
             else
             {

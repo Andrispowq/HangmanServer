@@ -22,26 +22,28 @@ namespace HangmanServer.Controllers.Multiplayer
             Session? session = Connections.FindSessionBySessionID(request.sessionID);
             if (session != null)
             {
-                if (HangmanServer.Multiplayer.handler.OnQueue(request.sessionID))
+                lock (HangmanServer.Multiplayer._lock)
                 {
-                    HangmanServer.Multiplayer.handler.RemoveFromQueue(request.sessionID);
-                    result.result = true;
-                }
-                else
-                {
-                    OngoingGame? game = HangmanServer.Multiplayer.handler.HasOngoingGame(request.sessionID);
-                    if (game != null)
+                    if (HangmanServer.Multiplayer.handler.OnQueue(request.sessionID))
                     {
-                        game.state.state = GameState.Aborted;
-                        HangmanServer.Multiplayer.handler.AbortGame(game);
+                        HangmanServer.Multiplayer.handler.RemoveFromQueue(request.sessionID);
+                        result.result = true;
                     }
                     else
                     {
-                        result.result = false;
-                        result.message = "ERROR: player isn't in an active game or on a waiting queue";
+                        OngoingGame? game = HangmanServer.Multiplayer.handler.HasOngoingGame(request.sessionID);
+                        if (game != null)
+                        {
+                            game.state.state = GameState.Aborted;
+                            HangmanServer.Multiplayer.handler.AbortGame(game);
+                        }
+                        else
+                        {
+                            result.result = false;
+                            result.message = "ERROR: player isn't in an active game or on a waiting queue";
+                        }
                     }
                 }
-
             }
             else
             {

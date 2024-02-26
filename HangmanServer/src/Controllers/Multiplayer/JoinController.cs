@@ -26,14 +26,17 @@ namespace HangmanServer.Controllers.Multiplayer
                 MultiplayerRequest multiplayerRequest = new MultiplayerRequest(session, request.game);
                 multiplayerRequest.session = session;
 
-                OngoingGame? ongoingGame = HangmanServer.Multiplayer.handler.TryJoin(multiplayerRequest);
-                result.result = true;
-                result.matchID = null;
-
-                if (ongoingGame != null)
+                lock (HangmanServer.Multiplayer._lock)
                 {
-                    result.matchID = ongoingGame!.matchID;
-                    result.opponent = ongoingGame!.challenger.GetUserData()!.username;
+                    OngoingGame? ongoingGame = HangmanServer.Multiplayer.handler.TryJoin(multiplayerRequest);
+                    result.result = true;
+                    result.matchID = null;
+
+                    if (ongoingGame != null)
+                    {
+                        result.matchID = ongoingGame!.matchID;
+                        result.opponent = ongoingGame!.challenger.GetUserData()!.username;
+                    }
                 }
             }
             else

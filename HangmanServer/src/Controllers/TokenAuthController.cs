@@ -50,14 +50,20 @@ namespace HangmanServer.Controllers
                                 result = token.Authenticate();
                                 if (result.result)
                                 {
-                                    Tokens.manager.RemoveToken(request.tokenID);
+                                    lock (Tokens._lock)
+                                    {
+                                        Tokens.manager.RemoveToken(request.tokenID);
+                                    }
 
                                     Token refreshToken = Token.RefreshToken(token);
                                     Tokens.tokens.TryRemove(request.tokenID, out _);
                                     Tokens.tokens.TryAdd(refreshToken.GetTokenID(), refreshToken);
                                     result.refreshedTokenID = refreshToken.GetTokenID();
 
-                                    Tokens.manager.AddToken(refreshToken.GetInfo());
+                                    lock (Tokens._lock)
+                                    {
+                                        Tokens.manager.AddToken(refreshToken.GetInfo());
+                                    }
 
                                     session.LoginUser(refreshToken.GetUser());
                                     result.sessionID = session.GetSessionID();

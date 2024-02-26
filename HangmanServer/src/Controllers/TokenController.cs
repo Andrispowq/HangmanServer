@@ -26,7 +26,11 @@ namespace HangmanServer.Controllers
                 result.result = true;
                 result.tokenID = token.GetTokenID();
                 Tokens.tokens.TryAdd(token.GetTokenID(), token);
-                Tokens.manager.AddToken(token.GetInfo());
+
+                lock (Tokens._lock)
+                {
+                    Tokens.manager.AddToken(token.GetInfo());
+                }
             }
             else
             {

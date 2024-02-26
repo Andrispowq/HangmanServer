@@ -26,11 +26,13 @@ namespace HangmanServer
     {
         public static ConcurrentDictionary<Guid, Token> tokens = new();
         public static TokenManager manager = new("tokens.json");
+        public static readonly object _lock = new object();
     }
 
     internal static class Multiplayer
     {
         public static MultiplayerHandler handler = new();
+        public static readonly object _lock = new object();
     }
 
     public class Server
@@ -81,7 +83,10 @@ namespace HangmanServer
                     break;
                 }
 
-                Multiplayer.handler.Update(delta);
+                lock (Multiplayer._lock)
+                {
+                    Multiplayer.handler.Update(delta);
+                }
 
                 List<Guid> timeoutTokens = new List<Guid>();
                 foreach (var token in Tokens.tokens)
@@ -184,7 +189,12 @@ namespace HangmanServer
                 {
                     Console.WriteLine("{0}", tok.Value.ToString());
                 }
-                Multiplayer.handler.LogState();
+
+                lock (Multiplayer._lock)
+                {
+                    Multiplayer.handler.LogState();
+                }
+
                 return 1;
             };
 
@@ -207,7 +217,10 @@ namespace HangmanServer
                     case "-tall":
                     case "-ta":
                         Console.WriteLine("Invalidated all ({0}) tokens...", Tokens.tokens.Count);
-                        Tokens.manager.tokens.Clear();
+                        lock (Tokens._lock)
+                        {
+                            Tokens.manager.tokens.Clear();
+                        }
                         Tokens.tokens.Clear();
                         break;
                     case "-token":
@@ -226,7 +239,10 @@ namespace HangmanServer
 
                         if (Tokens.tokens.ContainsKey(key))
                         {
-                            Tokens.manager.RemoveToken(key);
+                            lock (Tokens._lock)
+                            {
+                                Tokens.manager.RemoveToken(key);
+                            }
                             Tokens.tokens.Remove(key, out _);
                             Console.WriteLine("Invalidated token {0}", key);
                         }
@@ -278,7 +294,11 @@ namespace HangmanServer
                         }
 
                         Console.WriteLine("Removing waiting session {0}", key);
-                        Multiplayer.handler.RemoveFromQueue(key);
+
+                        lock (Multiplayer._lock)
+                        {
+                            Multiplayer.handler.RemoveFromQueue(key);
+                        }
 
                         break;
                     case "-m":
@@ -296,7 +316,11 @@ namespace HangmanServer
                         }
 
                         Console.WriteLine("Removing game {0}", key);
-                        Multiplayer.handler.DisconnectGame(key);
+
+                        lock (Multiplayer._lock)
+                        {
+                            Multiplayer.handler.DisconnectGame(key);
+                        }
 
                         break;
                     case "-help":
