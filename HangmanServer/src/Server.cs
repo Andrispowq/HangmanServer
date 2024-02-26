@@ -6,7 +6,8 @@ namespace HangmanServer
 {
     internal static class Connections
     {
-        public static ConcurrentDictionary<Guid, Session> sessions = new();
+        public static ConcurrentDictionary<Guid, Guid> connections = new(); //maps clientID to connectionID
+        public static ConcurrentDictionary<Guid, Session> sessions = new(); //maps connectionID to session
 
         public static Session? FindSessionBySessionID(Guid sessionID)
         {

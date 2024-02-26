@@ -49,7 +49,7 @@ namespace HangmanServer.src.Controllers.Dictionary
         }
 
         [HttpGet(Name = "Content")]
-        public IActionResult GetContent([FromQuery] int start, [FromQuery] int count, [FromQuery] string language = "hu")
+        public IActionResult GetContent([FromQuery] int start = 0, [FromQuery] int count = 0, [FromQuery] string language = "hu")
         {
             string[]? words;
             if (language == "hu")

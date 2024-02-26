@@ -38,6 +38,7 @@ namespace HangmanServer.Controllers
                 }
 
                 result.result = Connections.sessions.Remove(request.connectionID, out _);
+                Connections.connections.Remove(session.GetClientID(), out _);
             }
 
             return Ok(result);

@@ -228,6 +228,16 @@ namespace HangmanServer
             waitingSessions = new();
         }
 
+        public int GetOngoingGames()
+        {
+            return ongoingGames.Count;
+        }
+
+        public int GetWaitingSessions()
+        {
+            return waitingSessions.Count;
+        }
+
         public void RemoveFromQueue(Guid sessionID)
         {
             MultiplayerRequest? request = null;

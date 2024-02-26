@@ -19,23 +19,14 @@ namespace HangmanServer.Controllers
             ConnectResult result = new ConnectResult();
             result.result = false;
 
-            bool found = false;
-            foreach(var session in Connections.sessions.Values)
-            {
-                if (session.GetClientID() == request.clientID)
-                {
-                    found = true;
-                    break;
-                }
-            }
-
-            if(found)
+            if(Connections.connections.ContainsKey(request.clientID))
             {
                 result.message = "Client with clientID is already connected!";
             }
             else
             {
                 Session session = new Session(request.clientID);
+                Connections.connections.TryAdd(request.clientID, session.GetConnectionID());
                 result.result = Connections.sessions.TryAdd(session.GetConnectionID(), session);
                 result.connectionID = session.GetConnectionID();
 

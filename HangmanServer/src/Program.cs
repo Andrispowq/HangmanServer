@@ -1,5 +1,6 @@
 
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Controllers;
 
 namespace HangmanServer
 {
@@ -41,10 +42,7 @@ namespace HangmanServer
             }
 
             app.UseHttpsRedirection();
-
             app.UseAuthorization();
-
-
             app.MapControllers();
 
             app.Run();
