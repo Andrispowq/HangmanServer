@@ -4,27 +4,22 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HangmanServer.Controllers.Multiplayer
 {
-    public class MultiplayerJoinedRequest
-    {
-        public Guid sessionID { get; set; }
-    }
-
     [ApiController]
     [Route("Multiplayer/[controller]")]
     public class JoinedController : ControllerBase
     {
-        [HttpPut(Name = "Joined")]
-        public IActionResult Joined([FromBody] MultiplayerJoinedRequest request)
+        [HttpGet(Name = "Joined")]
+        public IActionResult Joined([FromQuery] Guid sessionID)
         {
             MultiplayerJoinResult result = new MultiplayerJoinResult();
             result.result = false;
 
-            Session? session = Connections.FindSessionBySessionID(request.sessionID);
+            Session? session = Connections.FindSessionBySessionID(sessionID);
             if (session != null)
             {
                 lock (HangmanServer.Multiplayer._lock)
                 {
-                    OngoingGame? game = HangmanServer.Multiplayer.handler.HasOngoingGame(request.sessionID);
+                    OngoingGame? game = HangmanServer.Multiplayer.handler.HasOngoingGame(sessionID);
                     result.result = true;
 
                     if (game != null)

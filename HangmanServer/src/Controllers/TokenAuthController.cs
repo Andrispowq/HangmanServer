@@ -14,7 +14,7 @@ namespace HangmanServer.Controllers
     [Route("[controller]")]
     public class TokenAuthController : ControllerBase
     {
-        [HttpPost(Name = "TokenAuthRequest")]
+        [HttpPut(Name = "TokenAuthRequest")]
         public IActionResult TokenAuthRequest([FromBody] TokenAuthRequest request)
         {
             TokenAuthResult result = new TokenAuthResult();

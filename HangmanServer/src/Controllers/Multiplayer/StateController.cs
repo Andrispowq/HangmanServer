@@ -4,23 +4,17 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HangmanServer.Controllers.Multiplayer
 {
-    public class StateRequest
-    {
-        public Guid matchID { get; set; }
-        public Guid sessionID { get; set; }
-    }
-
     [ApiController]
     [Route("Multiplayer/[controller]")]
     public class StateController : ControllerBase
 	{
-        [HttpPost(Name = "State")]
-        public IActionResult State([FromBody] StateRequest request)
+        [HttpGet(Name = "State")]
+        public IActionResult State([FromQuery] Guid sessionID, [FromQuery] Guid matchID)
         {
             GameStateResult result;
             lock (HangmanServer.Multiplayer._lock)
             {
-                result = HangmanServer.Multiplayer.handler.GetGameState(request.matchID, request.sessionID);
+                result = HangmanServer.Multiplayer.handler.GetGameState(matchID, sessionID);
             }
 
             return Ok(result);

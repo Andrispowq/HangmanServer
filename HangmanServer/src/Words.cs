@@ -5,7 +5,7 @@ namespace HangmanServer
 {
     internal class Words
     {
-        private static string[]? words_array;
+        public static string[]? words_array;
         private static string words_file = "/magyar_szavak.txt";
         public static string GetWord()
         {
