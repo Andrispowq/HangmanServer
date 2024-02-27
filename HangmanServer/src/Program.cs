@@ -1,6 +1,8 @@
 
+using HangmanServer.src.Multiplayer.SignalR;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Controllers;
+using System.Net.WebSockets;
 
 namespace HangmanServer
 {
@@ -12,38 +14,49 @@ namespace HangmanServer
 
             Task.Run(Server.CommandThread);
 
-            // Specify the URLs to listen on
             builder.WebHost.ConfigureKestrel(serverOptions =>
             {
-                // Setup a HTTP and HTTPS endpoint
-                serverOptions.ListenAnyIP(6969); // Listen for HTTP connections on port 5000
+                serverOptions.ListenAnyIP(6969);
                 serverOptions.ListenAnyIP(6970, listenOptions =>
                 {
-                    listenOptions.UseHttps(); // Listen for HTTPS connections on port 5001
+                    listenOptions.UseHttps();
                 });
             });
 
             Server.InitialiseServer();
 
-            // Add services to the container.
-
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy", policyBuilder =>
+                    policyBuilder.WithOrigins("http://localhost:8000") // Replace with the client's origin
+                                 .AllowAnyMethod()
+                                 .AllowAnyHeader()
+                                 .AllowCredentials());
+            });
+
+            builder.Services.AddSignalR();
+
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
 
+            app.UseHsts();
+            app.UseCors("CorsPolicy");
+
             app.UseHttpsRedirection();
             app.UseAuthorization();
             app.MapControllers();
+
+            app.MapHub<MultiplayerHub>("/MultiplayerHub");
 
             app.Run();
         }

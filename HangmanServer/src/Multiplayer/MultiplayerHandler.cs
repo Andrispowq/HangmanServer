@@ -17,6 +17,9 @@ namespace HangmanServer
         public Guid matchID = Guid.NewGuid();
         public Session challenger;
         public Session challenged;
+        public string signalR_challengerID;
+        public string signalR_challengedID;
+
         public GameType type;
 
         public GameData state;
@@ -25,6 +28,8 @@ namespace HangmanServer
         {
             this.challenger = challenger.session;
             this.challenged = challenged.session;
+            signalR_challengerID = challenger.signalR_ID;
+            signalR_challengedID = challenged.signalR_ID;
 
             this.type = challenger.type;
             switch (type)
@@ -219,13 +224,20 @@ namespace HangmanServer
 
     internal class MultiplayerHandler
     {
-        private List<OngoingGame> ongoingGames;
-        private List<MultiplayerRequest> waitingSessions;
+        struct MatchData
+        {
+            public Guid opponentSessionID;
+            public Guid matchID;
+        }
+
+        private static List<MultiplayerRequest> waitingSessions = new();
+        private static object _lock = new object();
+
+        private static ConcurrentDictionary<Guid, OngoingGame> ongoingGames = new(); //matchID to game
+        private static ConcurrentDictionary<Guid, MatchData> matchIDs = new(); //matches sessionIDs to matchIDs
 
         public MultiplayerHandler()
         {
-            ongoingGames = new();
-            waitingSessions = new();
         }
 
         public int GetOngoingGames()
@@ -240,38 +252,59 @@ namespace HangmanServer
 
         public void RemoveFromQueue(Guid sessionID)
         {
-            MultiplayerRequest? request = null;
-            foreach (var waiting in waitingSessions)
-            {
-                if (waiting.session.GetSessionID() == sessionID)
-                {
-                    request = waiting;
-                    break;
-                }
-            }
-
-            if (request != null)
-            {
-                waitingSessions.Remove(request);
-            }
+            waitingSessions.RemoveAll(m => m.session.GetSessionID() == sessionID);
         }
 
-        public void AbortGame(OngoingGame ongoingGame)
+        public OngoingGame? GetOngoingGame(Guid matchID)
         {
-            ongoingGames.Remove(ongoingGame);
-        }
-
-        public OngoingGame? HasOngoingGame(Guid sessionID)
-        {
-            foreach (var game in ongoingGames)
+            if (ongoingGames.ContainsKey(matchID))
             {
-                if (game.challenger.GetSessionID() == sessionID)
-                {
-                    return game;
-                }
+                 return ongoingGames[matchID];
             }
 
             return null;
+        }
+
+        public OngoingGame? GetOngoingGameBySessionID(Guid sessionID)
+        {
+            if (matchIDs.ContainsKey(sessionID))
+            {
+                return ongoingGames[matchIDs[sessionID].matchID];
+            }
+
+            return null;
+        }
+
+        public void AbortGame(Guid sessionID)
+        {
+            if (matchIDs.ContainsKey(sessionID))
+            {
+                MatchData data;
+                matchIDs.TryRemove(sessionID, out data);
+                matchIDs.Remove(data.opponentSessionID, out _);
+
+                ongoingGames.TryRemove(data.matchID, out _);
+            }
+        }
+
+        public void AbortGameByMatchID(Guid matchID)
+        {
+            if(ongoingGames.Remove(matchID, out _))
+            {
+                List<Guid> sessions = new();
+                foreach(var session in matchIDs)
+                {
+                    if(session.Value.matchID == matchID)
+                    {
+                        sessions.Add(session.Key);
+                    }
+                }
+
+                foreach(var session in sessions)
+                {
+                    matchIDs.Remove(session, out _);
+                }
+            }
         }
 
         public bool OnQueue(Guid sessionID)
@@ -279,19 +312,6 @@ namespace HangmanServer
             foreach (var waiting in waitingSessions)
             {
                 if (waiting.session.GetSessionID() == sessionID)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        public bool TriedConnecting(Guid sessionID)
-        {
-            foreach (var session in waitingSessions)
-            {
-                if (session.session.GetSessionID() == sessionID)
                 {
                     return true;
                 }
@@ -314,13 +334,14 @@ namespace HangmanServer
             if (joined != null)
             {
                 OngoingGame game = new OngoingGame(joined, request);
+                ongoingGames.TryAdd(game.matchID, game);
 
-                //Notify the other player that a match has been found
-                MultiplayerJoinResult result = new();
-                result.result = true;
-                result.matchID = game.matchID;
+                Guid thisSessionID = request.session.GetSessionID();
+                Guid opponentSessionID = joined.session.GetSessionID();
 
-                ongoingGames.Add(game);
+                matchIDs.TryAdd(thisSessionID, new MatchData { opponentSessionID = opponentSessionID, matchID = game.matchID });
+                matchIDs.TryAdd(opponentSessionID, new MatchData { opponentSessionID = thisSessionID, matchID = game.matchID });
+
                 waitingSessions.Remove(joined);
                 return game;
             }
@@ -332,61 +353,37 @@ namespace HangmanServer
             return null;
         }
 
-        public GameStateResult UpdateGame(Guid matchID, Guid sessionID, char guess)
+        public GameStateResult UpdateGame(Guid matchID, bool challenger, char guess)
         {
             GameStateResult request = new();
             request.result = false;
 
-            foreach (var game in ongoingGames)
+            if(ongoingGames.ContainsKey(matchID))
             {
-                if (game.matchID == matchID)
-                {
-                    request.result = true;
-
-                    if (game.challenger.GetSessionID() == sessionID)
-                    {
-                        request = game.UpdateGameState(true, guess);
-                    }
-                    else if (game.challenged.GetSessionID() == sessionID)
-                    {
-                        request = game.UpdateGameState(false, guess);
-                    }
-                    else
-                    {
-                        request.result = false;
-                        request.message = "SessionID not found!";
-                    }
-                }
+                OngoingGame game = ongoingGames[matchID];
+                request = game.UpdateGameState(challenger, guess);
+            }
+            else
+            {
+                request.message = "MatchID not found!";
             }
 
             return request;
         }
 
-        public GameStateResult GetGameState(Guid matchID, Guid sessionID)
+        public GameStateResult GetGameState(Guid matchID, bool challenger)
         {
             GameStateResult request = new();
             request.result = false;
 
-            foreach (var game in ongoingGames)
+            if (ongoingGames.ContainsKey(matchID))
             {
-                if (game.matchID == matchID)
-                {
-                    request.result = true;
-
-                    if (game.challenger.GetSessionID() == sessionID)
-                    {
-                        request = game.GetGameState(true);
-                    }
-                    else if (game.challenged.GetSessionID() == sessionID)
-                    {
-                        request = game.GetGameState(false);
-                    }
-                    else
-                    {
-                        request.result = false;
-                        request.message = "SessionID not found!";
-                    }
-                }
+                OngoingGame game = ongoingGames[matchID];
+                request = game.GetGameState(challenger);
+            }
+            else
+            {
+                request.message = "MatchID not found!";
             }
 
             return request;
@@ -414,7 +411,7 @@ namespace HangmanServer
 
             {
                 List<OngoingGame> timeouts = new();
-                foreach (var game in ongoingGames)
+                foreach (var game in ongoingGames.Values)
                 {
                     game.Update(seconds_passed);
                     if (game.state.state == GameState.Aborted)
@@ -426,26 +423,8 @@ namespace HangmanServer
                 foreach (var game in timeouts)
                 {
                     Console.WriteLine("Timed out multiplayer game " + game.matchID);
-                    AbortGame(game);
+                    AbortGame(game.challenger.GetSessionID());
                 }
-            }
-        }
-
-        public void DisconnectGame(Guid game)
-        {
-            OngoingGame? ongoingGame = null;
-            foreach (var g in ongoingGames)
-            {
-                if (g.matchID == game)
-                {
-                    ongoingGame = g;
-                    break;
-                }
-            }
-
-            if (ongoingGame != null)
-            {
-                AbortGame(ongoingGame);
             }
         }
 

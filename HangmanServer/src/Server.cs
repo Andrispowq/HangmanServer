@@ -337,7 +337,7 @@ namespace HangmanServer
 
                         lock (Multiplayer._lock)
                         {
-                            Multiplayer.handler.DisconnectGame(key);
+                            Multiplayer.handler.AbortGame(key);
                         }
 
                         break;
