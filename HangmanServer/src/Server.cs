@@ -90,6 +90,8 @@ namespace HangmanServer
                     break;
                 }
 
+                RequestHandlers.database.SaveData();
+
                 lock (Multiplayer._lock)
                 {
                     Multiplayer.handler.Update(delta);

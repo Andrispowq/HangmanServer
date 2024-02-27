@@ -48,7 +48,6 @@ namespace HangmanServer
                 if (item.username == username)
                 {
                     data.Remove(item);
-                    SaveData();
                     break;
                 }
             }
@@ -121,7 +120,6 @@ namespace HangmanServer
             new_data.password_hash2 = user.password_hash2;
             new_data.encrypted_key = user.encryption_key;
             data.Add(new_data);
-            SaveData();
 
             return true;
         }

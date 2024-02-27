@@ -55,28 +55,35 @@
     internal static class RequestHandlers
     {
         public static UserDatabase database = new UserDatabase($"{Config.GetConfig().serverFolder}/user_database.json");
+        public static object _lock = new object();
 
         public static UserExistsResult HandleUserExists(string username)
         {
             UserExistsResult result = new();
-            result.result = database.UserExists(username);
+            lock(_lock)
+            {
+                result.result = database.UserExists(username);
+            }
             return result;
         }
 
         public static UserLoginResult HandleUserLogin(Session session, string username, string password, out User? user, bool plain = false)
         {
             user = null;
-            if (database.UserExists(username))
+            lock (_lock)
             {
-                string password_decrypted = password;
-                if (!plain)
+                if (database.UserExists(username))
                 {
-                    password_decrypted = session.Decrypt(password);
-                }
+                    string password_decrypted = password;
+                    if (!plain)
+                    {
+                        password_decrypted = session.Decrypt(password);
+                    }
 
-                string pass_try = database.SecurePassword(database.GetUserID(username), password_decrypted);
-                string hash = Crypto.GetHashString(pass_try);
-                database.TryLogin(username, hash, out user);
+                    string pass_try = database.SecurePassword(database.GetUserID(username), password_decrypted);
+                    string hash = Crypto.GetHashString(pass_try);
+                    database.TryLogin(username, hash, out user);
+                }
             }
 
             UserLoginResult result = new();
@@ -128,8 +135,11 @@
                 password_decrypted = session.Decrypt(password);
             }
 
-            string secure_pass = database.SecurePassword(database.GetUserID(username), password_decrypted);
-            bool res = database.CreateNewUser(username, secure_pass, out user);
+            lock (_lock)
+            {
+                string secure_pass = database.SecurePassword(database.GetUserID(username), password_decrypted);
+                bool res = database.CreateNewUser(username, secure_pass, out user);
+            }
 
             UserCreateResult result = new();
             result.result = false;
