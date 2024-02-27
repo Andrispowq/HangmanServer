@@ -32,9 +32,16 @@ namespace HangmanServer.Controllers.Account
                 result.message = "Username can't be longer than 30 characters!";
                 return Ok(result);
             }
-            if(request.username.Contains("\n"))
+            if (request.username.Contains("\n"))
             {
                 result.message = "Username can't contain new line!";
+                return Ok(result);
+            }
+
+            string username = request.username;
+            if(!username.All(char.IsLetterOrDigit))
+            {
+                result.message = "Username contains illegal character!";
                 return Ok(result);
             }
 
