@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 
 namespace HangmanServer.Controllers.Account
 {
@@ -27,21 +28,7 @@ namespace HangmanServer.Controllers.Account
                 Session loginSession = Connections.sessions[request.connectionID];
                 if (loginSession.GetUserData() == null)
                 {
-                    bool found = false;
-                    foreach (var session in Connections.sessions.Values)
-                    {
-                        User? user = session.GetUserData();
-                        if (user != null)
-                        {
-                            if (user.username == request.username)
-                            {
-                                found = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (!found)
+                    if (!Connections.IsUserLoggedIn(request.username))
                     {
                         if (RequestHandlers.database.UserExists(request.username))
                         {
@@ -52,7 +39,10 @@ namespace HangmanServer.Controllers.Account
                             if (user != null)
                             {
                                 loginSession.LoginUser(user);
-                                result.sessionID = loginSession.GetSessionID();
+                                Guid sessionID = loginSession.GetSessionID();
+                                Connections.users.TryAdd(request.username, request.connectionID);
+                                Connections.sessionIDs.TryAdd(sessionID, request.connectionID);
+                                result.sessionID = sessionID;
                             }
                             else
                             {

@@ -34,6 +34,8 @@ namespace HangmanServer.Controllers.Account
                     }
                 }
 
+                Connections.users.Remove(session.GetUserData()!.username, out _);
+                Connections.sessionIDs.Remove(request.sessionID, out _);
                 session.LogoutUser();
                 result.result = true;
             }

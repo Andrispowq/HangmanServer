@@ -7,15 +7,24 @@ namespace HangmanServer
     internal static class Connections
     {
         public static ConcurrentDictionary<Guid, Guid> connections = new(); //maps clientID to connectionID
+        public static ConcurrentDictionary<Guid, Guid> sessionIDs = new(); //maps sessionID to connectionID
+        public static ConcurrentDictionary<string, Guid> users = new(); //maps username to connectionID
         public static ConcurrentDictionary<Guid, Session> sessions = new(); //maps connectionID to session
+
+        public static bool IsUserLoggedIn(string username)
+        {
+            return users.ContainsKey(username);
+        }
 
         public static Session? FindSessionBySessionID(Guid sessionID)
         {
-            foreach(var session in sessions)
+            if(sessionIDs.ContainsKey(sessionID))
             {
-                if(session.Value.GetSessionID() == sessionID)
+                var connID = sessionIDs[sessionID];
+                //This is pretty pointless considering the server architecture but better safe than sorry
+                if (sessions.ContainsKey(connID))
                 {
-                    return session.Value;
+                    return sessions[sessionIDs[sessionID]];
                 }
             }
 

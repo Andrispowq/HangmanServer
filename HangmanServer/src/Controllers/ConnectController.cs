@@ -33,7 +33,6 @@ namespace HangmanServer.Controllers
                 if (request.apple != null && request.apple.Value)
                 {
                     result.exponent = session.GetPublicKeyApple();
-                    Console.WriteLine(Convert.ToBase64String(result.exponent));
                 }
                 else
                 {
