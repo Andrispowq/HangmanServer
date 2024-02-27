@@ -32,11 +32,13 @@ namespace HangmanServer
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("CorsPolicy", policyBuilder =>
-                    policyBuilder.WithOrigins("http://localhost:8000") // Replace with the client's origin
+                options.AddPolicy("AllowedOrigins", policy =>
+                {
+                    policy.WithOrigins("http://localhost:8000")
                                  .AllowAnyMethod()
                                  .AllowAnyHeader()
-                                 .AllowCredentials());
+                                 .AllowCredentials();
+                });
             });
 
             builder.Services.AddSignalR();
@@ -50,7 +52,7 @@ namespace HangmanServer
             }
 
             app.UseHsts();
-            app.UseCors("CorsPolicy");
+            app.UseCors("AllowedOrigins");
 
             app.UseHttpsRedirection();
             app.UseAuthorization();
