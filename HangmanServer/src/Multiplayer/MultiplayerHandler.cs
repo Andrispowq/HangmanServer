@@ -49,6 +49,23 @@ namespace HangmanServer
             }
         }
 
+        public (bool, string) GetWord(bool challenger)
+        {
+            switch (type)
+            {
+                case GameType.Versus: 
+                    return (false, challenger ?
+                        (state as VersusState)!.challengerState.word : (state as VersusState)!.challengedState.word);
+                case GameType.Campaign:
+                    return (false, challenger ?
+                        (state as CampaignState)!.challengerState.word : (state as CampaignState)!.challengedState.word);
+                case GameType.Cooperation:
+                    return (true, (state as CoopState)!.word);
+            }
+
+            return (false, "");
+        }
+
         public string UpdateGameState(bool challenger, char guess)
         {
             switch (type)
