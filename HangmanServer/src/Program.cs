@@ -54,7 +54,7 @@ namespace HangmanServer
             app.UseHsts();
             app.UseCors("AllowedOrigins");
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseAuthorization();
             app.MapControllers();
 

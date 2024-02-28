@@ -11,10 +11,12 @@ namespace HangmanServer.src.Multiplayer.SignalR
         public async Task<string> Join(Guid sessionID, GameType gameType)
         {
             string currentUserId = Context.ConnectionId;
+            Console.WriteLine($"Joining with {currentUserId}, {sessionID}, {gameType}");
 
             Session? session = Connections.FindSessionBySessionID(sessionID);
             if (session == null)
             {
+                Console.WriteLine("No sessionID found!");
                 return "SessionID not found!";
             }
 
@@ -25,10 +27,12 @@ namespace HangmanServer.src.Multiplayer.SignalR
             lock (HangmanServer.Multiplayer._lock)
             {
                 game = HangmanServer.Multiplayer.handler.TryJoin(joinRequest);
+                Console.WriteLine("Tried joining!");
             }
 
             if (game != null)
             {
+                Console.WriteLine("Game found!");
                 MultiplayerJoinResult resultChallenger = new();
                 resultChallenger.result = true;
                 resultChallenger.matchID = game.matchID;
@@ -45,6 +49,7 @@ namespace HangmanServer.src.Multiplayer.SignalR
             }
             else
             {
+                Console.WriteLine("Game not found!");
                 await Clients.Caller.SendAsync("WaitingForOpponent");
                 return "Waiting...";
             }
@@ -52,6 +57,7 @@ namespace HangmanServer.src.Multiplayer.SignalR
 
         public async Task Abort(Guid sessionID)
         {
+            Console.WriteLine($"Aborting with {Context.ConnectionId}, {sessionID}");
             OngoingGame? game;
             lock (HangmanServer.Multiplayer._lock)
             {
@@ -71,6 +77,7 @@ namespace HangmanServer.src.Multiplayer.SignalR
 
         public async Task Guess(Guid matchID, char guess)
         {
+            Console.WriteLine($"Guessing with {Context.ConnectionId}, {matchID}, {guess}");
             OngoingGame? game;
             GameStateResult? resultChallenger = null;
             GameStateResult? resultChallenged = null;
@@ -95,8 +102,7 @@ namespace HangmanServer.src.Multiplayer.SignalR
             }
             else
             {
-                await Clients.Client(game.signalR_challengerID).SendAsync("MatchAborted");
-                await Clients.Client(game.signalR_challengedID).SendAsync("MatchAborted");
+                await Clients.Caller.SendAsync("MatchAborted");
             }
         }
     }

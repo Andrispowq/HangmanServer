@@ -12,7 +12,7 @@ namespace HangmanServer
     {
         private static double DefaultTimeout = 120; //2 minutes
 
-        public string signalR_ID;
+        public string signalR_ID = "";
         public Session session;
         public GameType type;
 
