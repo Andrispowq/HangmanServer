@@ -84,7 +84,7 @@ namespace HangmanServer.src.Multiplayer.SignalR
             OngoingGame? game;
             GameStateResult? resultChallenger = null;
             GameStateResult? resultChallenged = null;
-            bool guessed = false;
+            string guessed = "";
             lock (HangmanServer.Multiplayer._lock)
             {
                 game = HangmanServer.Multiplayer.handler.GetOngoingGame(matchID);
@@ -105,9 +105,9 @@ namespace HangmanServer.src.Multiplayer.SignalR
 
             if(game != null)
             {
-                if(guessed)
+                if(guessed != "")
                 {
-                    await Clients.Caller.SendAsync("WordGuessed");
+                    await Clients.Caller.SendAsync("WordGuessed", guessed);
                 }
 
                 await Clients.Client(game.signalR_challengerID).SendAsync("MatchUpdated", resultChallenger);
