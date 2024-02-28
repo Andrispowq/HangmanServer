@@ -5,7 +5,7 @@ namespace HangmanServer
     {
         internal class PlayerState
         {
-            public static int DefaultWords = 5;
+            public static int DefaultWords = 2; //TODO: 5
             public int guessedWords = 0;
             public int wrongGuesses = 0;
             public string word = "";
@@ -96,11 +96,14 @@ namespace HangmanServer
                 if (guessedWord == challengerState.word)
                 {
                     //no new words have been added
-                    if (words.Last() == challengerState.word)
+                    if (!challengerState.Over())
                     {
-                        words.Add(Words.GetWord());
+                        if (words.Last() == challengerState.word)
+                        {
+                            words.Add(Words.GetWord());
+                        }
+                        challengerState.SetWord(words[words.IndexOf(challengerState.word) + 1]);
                     }
-                    challengerState.SetWord(words[words.IndexOf(challengerState.word) + 1]);
                 }
             }
             else if (!challengedState.Over())
@@ -121,11 +124,14 @@ namespace HangmanServer
                 if (guessedWord == challengedState.word)
                 {
                     //no new words have been added
-                    if (words.Last() == challengedState.word)
+                    if (!challengedState.Over())
                     {
-                        words.Add(Words.GetWord());
+                        if (words.Last() == challengedState.word)
+                        {
+                            words.Add(Words.GetWord());
+                        }
+                        challengedState.SetWord(words[words.IndexOf(challengedState.word) + 1]);
                     }
-                    challengedState.SetWord(words[words.IndexOf(challengedState.word) + 1]);
                 }
             }
 

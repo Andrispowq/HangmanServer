@@ -165,7 +165,7 @@ namespace HangmanServer
                 return;
             }
 
-            if (challengerState.GetWrongGuesses(currWord) < challengedState.GetWrongGuesses(currWord))
+            /*if (challengerState.GetWrongGuesses(currWord) < challengedState.GetWrongGuesses(currWord))
             {
                 state = GameState.ChallengerWon;
                 return;
@@ -174,7 +174,7 @@ namespace HangmanServer
             {
                 state = GameState.ChallengedWon;
                 return;
-            }
+            }*/
 
             state = GameState.Draw;
         }

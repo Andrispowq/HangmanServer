@@ -23,6 +23,7 @@ namespace HangmanServer
         public GameType type;
 
         public GameData state;
+        public string currentWord = "";
 
         public OngoingGame(MultiplayerRequest challenger, MultiplayerRequest challenged)
         {
@@ -49,69 +50,60 @@ namespace HangmanServer
             }
         }
 
-        public (bool, string) GetWord(bool challenger)
+        public GameStateResult UpdateGameState(bool challenger, char guess)
         {
-            switch (type)
-            {
-                case GameType.Versus: 
-                    return (false, challenger ?
-                        (state as VersusState)!.challengerState.word : (state as VersusState)!.challengedState.word);
-                case GameType.Campaign:
-                    return (false, challenger ?
-                        (state as CampaignState)!.challengerState.word : (state as CampaignState)!.challengedState.word);
-                case GameType.Cooperation:
-                    return (true, (state as CoopState)!.word);
-            }
+            GameStateResult result = new GameStateResult();
+            result.result = true;
+            result.type = type;
+            result.state = state.state;
 
-            return (false, "");
-        }
-
-        public string UpdateGameState(bool challenger, char guess)
-        {
             switch (type)
             {
                 case GameType.Versus:
                     if (challenger)
                     {
                         string guessWord = (state as VersusState)!.GuessChallenger(guess);
-                        GetVersusState(challenger);
-                        return guessWord;
+                        result.versus = GetVersusState(challenger);
+                        result.versus!.guessedWord = guessWord;
                     }
                     else
                     {
                         string guessWord = (state as VersusState)!.GuessChallenged(guess);
-                        GetVersusState(challenger);
-                        return guessWord;
+                        result.versus = GetVersusState(challenger);
+                        result.versus!.guessedWord = guessWord;
                     }
+                    break;
                 case GameType.Campaign:
                     if (challenger)
                     {
                         string guessWord = (state as CampaignState)!.GuessChallenger(guess);
-                        GetCampaignState(challenger);
-                        return guessWord;
+                        result.campaign = GetCampaignState(challenger);
+                        result.campaign!.guessedWord = guessWord;
                     }
                     else
                     {
                         string guessWord = (state as CampaignState)!.GuessChallenged(guess);
-                        GetCampaignState(challenger);
-                        return guessWord;
+                        result.campaign = GetCampaignState(challenger);
+                        result.campaign!.guessedWord = guessWord;
                     }
+                    break;
                 case GameType.Cooperation:
                     if (challenger)
                     {
                         string guessWord = (state as CoopState)!.GuessChallenger(guess);
-                        GetCooperationState(challenger);
-                        return guessWord;
+                        result.coop = GetCooperationState(challenger);
+                        result.coop!.guessedWord = guessWord;
                     }
                     else
                     {
                         string guessWord = (state as CoopState)!.GuessChallenged(guess);
-                        GetCooperationState(challenger);
-                        return guessWord;
+                        result.coop = GetCooperationState(challenger);
+                        result.coop!.guessedWord = guessWord;
                     }
+                    break;
             }
 
-            return "";
+            return result;
         }
 
         public GameStateResult GetGameState(bool challenger)
@@ -367,15 +359,22 @@ namespace HangmanServer
             return null;
         }
 
-        public string UpdateGame(Guid matchID, bool challenger, char guess)
+        public GameStateResult UpdateGame(Guid matchID, bool challenger, char guess)
         {
-            if(ongoingGames.ContainsKey(matchID))
+            GameStateResult request = new();
+            request.result = false;
+
+            if (ongoingGames.ContainsKey(matchID))
             {
                 OngoingGame game = ongoingGames[matchID];
-                return game.UpdateGameState(challenger, guess);
+                request = game.UpdateGameState(challenger, guess);
+            }
+            else
+            {
+                request.message = "MatchID not found!";
             }
 
-            return "";
+            return request;
         }
 
         public GameStateResult GetGameState(Guid matchID, bool challenger)

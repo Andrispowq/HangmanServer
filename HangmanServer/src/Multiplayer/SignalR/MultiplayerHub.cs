@@ -11,12 +11,10 @@ namespace HangmanServer.src.Multiplayer.SignalR
         public async Task<string> Join(Guid sessionID, GameType gameType)
         {
             string currentUserId = Context.ConnectionId;
-            Console.WriteLine($"Joining with {currentUserId}, {sessionID}, {gameType}");
 
             Session? session = Connections.FindSessionBySessionID(sessionID);
             if (session == null)
             {
-                Console.WriteLine("No sessionID found!");
                 return "SessionID not found!";
             }
 
@@ -27,12 +25,10 @@ namespace HangmanServer.src.Multiplayer.SignalR
             lock (HangmanServer.Multiplayer._lock)
             {
                 game = HangmanServer.Multiplayer.handler.TryJoin(joinRequest);
-                Console.WriteLine("Tried joining!");
             }
 
             if (game != null)
             {
-                Console.WriteLine("Game found!");
                 MultiplayerJoinResult resultChallenger = new();
                 resultChallenger.result = true;
                 resultChallenger.matchID = game.matchID;
@@ -49,7 +45,6 @@ namespace HangmanServer.src.Multiplayer.SignalR
             }
             else
             {
-                Console.WriteLine("Game not found!");
                 await Clients.Caller.SendAsync("WaitingForOpponent");
                 return "Waiting...";
             }
@@ -57,7 +52,6 @@ namespace HangmanServer.src.Multiplayer.SignalR
 
         public async Task Abort(Guid sessionID)
         {
-            Console.WriteLine($"Aborting with {Context.ConnectionId}, {sessionID}");
             OngoingGame? game;
             lock (HangmanServer.Multiplayer._lock)
             {
@@ -79,13 +73,11 @@ namespace HangmanServer.src.Multiplayer.SignalR
 
         public async Task Guess(Guid matchID, string guess)
         {
-            Console.WriteLine($"Guessing with {Context.ConnectionId}, {matchID}, {guess}");
-
             bool challenger = false;
             OngoingGame? game;
             GameStateResult? resultChallenger = null;
             GameStateResult? resultChallenged = null;
-            string guessed = "";
+            GameStateResult? gameState = null;
             lock (HangmanServer.Multiplayer._lock)
             {
                 game = HangmanServer.Multiplayer.handler.GetOngoingGame(matchID);
@@ -95,7 +87,7 @@ namespace HangmanServer.src.Multiplayer.SignalR
                     challenger = game.signalR_challengerID == Context.ConnectionId;
                     if (guess.Length == 1)
                     {
-                        guessed = HangmanServer.Multiplayer.handler.UpdateGame(matchID, challenger, guess[0]);
+                        gameState = HangmanServer.Multiplayer.handler.UpdateGame(matchID, challenger, guess[0]);
                     }
 
                     resultChallenger = HangmanServer.Multiplayer.handler.GetGameState(matchID, true);
@@ -105,25 +97,58 @@ namespace HangmanServer.src.Multiplayer.SignalR
 
             if(game != null)
             {
-                (bool sendBoth, string word) = game.GetWord(challenger);
-                if(guessed == word)
-                {
-                    await Clients.Caller.SendAsync("WordGuessed", guessed);
-                    if(sendBoth)
-                    {
-                        if(challenger)
-                        {
-                            await Clients.Client(game.signalR_challengedID).SendAsync("WordGuessed", guessed);
-                        }
-                        else
-                        {
-                            await Clients.Client(game.signalR_challengerID).SendAsync("WordGuessed", guessed);
-                        }
-                    }
-                }
-
                 await Clients.Client(game.signalR_challengerID).SendAsync("MatchUpdated", resultChallenger);
                 await Clients.Client(game.signalR_challengedID).SendAsync("MatchUpdated", resultChallenged);
+
+                if (gameState != null)
+                {
+                    string? word = gameState.versus?.guessedWord ?? gameState.campaign?.guessedWord ?? gameState.coop?.guessedWord;
+
+                    bool? versus = !gameState.versus?.guessedWord.Contains("_");
+                    bool? campaign = !gameState.campaign?.guessedWord.Contains("_");
+                    bool? coop = !gameState.coop?.guessedWord.Contains("_");
+                    bool value = (versus.HasValue && versus.Value)
+                        || (campaign.HasValue && campaign.Value)
+                        || (coop.HasValue && coop.Value);
+
+                    if (word != null && value)
+                    {
+                        await Clients.Caller.SendAsync("WordGuessed", word);
+                        if (coop.HasValue)
+                        {
+                            if (challenger)
+                            {
+                                await Clients.Client(game.signalR_challengedID).SendAsync("WordGuessed", word);
+                            }
+                            else
+                            {
+                                await Clients.Client(game.signalR_challengerID).SendAsync("WordGuessed", word);
+                            }
+                        }
+                    }
+
+                    await Console.Out.WriteLineAsync($"Game state is {resultChallenger!.state}");
+                    if (resultChallenger.state == GameState.ChallengerWon)
+                    {
+                        await Clients.Client(game.signalR_challengerID).SendAsync("ChallengerWon", resultChallenger);
+                        await Clients.Client(game.signalR_challengedID).SendAsync("ChallengerWon", resultChallenged);
+                    } 
+                    else if(resultChallenger.state == GameState.ChallengedWon)
+                    {
+                        await Clients.Client(game.signalR_challengerID).SendAsync("ChallengedWon", resultChallenger);
+                        await Clients.Client(game.signalR_challengedID).SendAsync("ChallengedWon", resultChallenged);
+                    }
+                    else if (resultChallenger.state == GameState.Draw)
+                    {
+                        await Clients.Client(game.signalR_challengerID).SendAsync("Draw", resultChallenger);
+                        await Clients.Client(game.signalR_challengedID).SendAsync("Draw", resultChallenged);
+                    }
+                    else if (resultChallenger.state == GameState.Aborted)
+                    {
+                        await Clients.Client(game.signalR_challengerID).SendAsync("MatchAborted", resultChallenger);
+                        await Clients.Client(game.signalR_challengedID).SendAsync("MatchAborted", resultChallenged);
+                    }
+                }
             }
             else
             {
