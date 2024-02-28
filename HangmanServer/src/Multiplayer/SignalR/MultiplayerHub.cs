@@ -93,6 +93,11 @@ namespace HangmanServer.src.Multiplayer.SignalR
                 await Clients.Client(game.signalR_challengerID).SendAsync("MatchUpdated", resultChallenger);
                 await Clients.Client(game.signalR_challengedID).SendAsync("MatchUpdated", resultChallenged);
             }
+            else
+            {
+                await Clients.Client(game.signalR_challengerID).SendAsync("MatchAborted");
+                await Clients.Client(game.signalR_challengedID).SendAsync("MatchAborted");
+            }
         }
     }
 }
