@@ -61,6 +61,8 @@ namespace HangmanServer.src.Multiplayer.SignalR
             OngoingGame? game;
             lock (HangmanServer.Multiplayer._lock)
             {
+                HangmanServer.Multiplayer.handler.RemoveFromQueue(sessionID);
+
                 game = HangmanServer.Multiplayer.handler.GetOngoingGameBySessionID(sessionID);
                 if(game != null)
                 {
@@ -75,9 +77,10 @@ namespace HangmanServer.src.Multiplayer.SignalR
             }
         }
 
-        public async Task Guess(Guid matchID, char guess)
+        public async Task Guess(Guid matchID, string guess)
         {
             Console.WriteLine($"Guessing with {Context.ConnectionId}, {matchID}, {guess}");
+
             OngoingGame? game;
             GameStateResult? resultChallenger = null;
             GameStateResult? resultChallenged = null;
@@ -88,7 +91,11 @@ namespace HangmanServer.src.Multiplayer.SignalR
                 if (game != null)
                 {
                     bool challenger = game.signalR_challengerID == Context.ConnectionId;
-                    HangmanServer.Multiplayer.handler.UpdateGame(matchID, challenger, guess);
+
+                    if (guess.Length == 1)
+                    {
+                        HangmanServer.Multiplayer.handler.UpdateGame(matchID, challenger, guess[0]);
+                    }
 
                     resultChallenger = HangmanServer.Multiplayer.handler.GetGameState(matchID, true);
                     resultChallenged = HangmanServer.Multiplayer.handler.GetGameState(matchID, false);

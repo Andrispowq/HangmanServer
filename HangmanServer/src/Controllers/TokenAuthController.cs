@@ -69,7 +69,6 @@ namespace HangmanServer.Controllers
                                     Guid sessionID = session.GetSessionID();
                                     Connections.users.TryAdd(token.GetUser().username, request.connectionID);
                                     Connections.sessionIDs.TryAdd(sessionID, request.connectionID);
-                                    Console.WriteLine($"Mapped {sessionID} and {token.GetUser().username} to {request.connectionID}, now sessionIDs is {Connections.sessionIDs.Count()} long");
                                     result.sessionID = sessionID;
                                 }
                             }
