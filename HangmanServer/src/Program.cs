@@ -12,6 +12,7 @@ namespace HangmanServer
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            Task.Run(Server.UpdateThread);
             Task.Run(Server.CommandThread);
 
             builder.WebHost.ConfigureKestrel(serverOptions =>

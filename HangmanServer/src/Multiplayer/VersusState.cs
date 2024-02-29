@@ -1,5 +1,6 @@
 ﻿using System;
-namespace HangmanServer
+namespace HangmanServer 
+ 
 {
     class VersusState : GameData
     {

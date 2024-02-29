@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -62,10 +63,8 @@ namespace HangmanServer
             SetupCommands();
         }
 
-        public static void CommandThread()
+        public static void UpdateThread()
         {
-            Console.Write("> ");
-
             var then = DateTime.UtcNow;
             while (true)
             {
@@ -75,36 +74,22 @@ namespace HangmanServer
                 then = DateTime.UtcNow;
 
                 //If the time passed is more than one minute, the server was likely out of focus, and delta can not be reliably used
-                if(delta > 60.0)
+                if (delta > 60.0)
                 {
                     delta = 0.0;
-                }
-
-                string command = Console.ReadLine()!;
-                if (!string.IsNullOrEmpty(command))
-                {
-                    try
-                    {
-                        int result = HandleCommand(command);
-                        Console.Write("> ");
-                    }
-                    catch(Exception e)
-                    {
-                        Console.WriteLine($"ERROR: an exception {e} was thrown!\n> ");
-                    }
                 }
 
                 if (exitThread)
                 {
                     break;
                 }
-
-                RequestHandlers.database.SaveData();
-
-                lock (Multiplayer._lock)
+                Task.Run(() =>
                 {
-                    Multiplayer.handler.Update(delta);
-                }
+                    lock (Multiplayer._lock)
+                    {
+                        Multiplayer.handler.Update(delta);
+                    }
+                });
 
                 List<Guid> timeoutTokens = new List<Guid>();
                 foreach (var token in Tokens.tokens)
@@ -137,12 +122,46 @@ namespace HangmanServer
                     Console.WriteLine("Timed out session (sessionID: {0})", ID);
                     Session? session;
                     Connections.sessions.Remove(ID, out session);
+                    Connections.connections.Remove(session!.GetClientID(), out _);
+                    if (session?.GetSessionID() != Guid.Empty)
+                    {
+                        Connections.users.Remove(session!.GetUserData()!.username, out _);
+                    }
                 }
 
                 if (timeouts.Count > 0)
                 {
                     Console.Write("> ");
                 }
+            }
+        }
+
+        public static void CommandThread()
+        {
+            Console.Write("> ");
+
+            while (true)
+            {
+                string command = Console.ReadLine()!;
+                if (!string.IsNullOrEmpty(command))
+                {
+                    try
+                    {
+                        int result = HandleCommand(command);
+                        Console.Write("> ");
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"ERROR: an exception {e} was thrown!\n> ");
+                    }
+                }
+
+                if (exitThread)
+                {
+                    break;
+                }
+
+                RequestHandlers.database.SaveData();
             }
 
             Environment.Exit(0);
@@ -231,6 +250,8 @@ namespace HangmanServer
                     case "-a":
                         Console.WriteLine("Disconnected all ({0}) sessions...", Connections.sessions.Count);
                         Connections.sessions.Clear();
+                        Connections.users.Clear();
+                        Connections.connections.Clear();
                         break;
                     case "-tall":
                     case "-ta":
@@ -287,7 +308,13 @@ namespace HangmanServer
 
                         if (Connections.sessions.ContainsKey(key))
                         {
-                            Connections.sessions.Remove(key, out _);
+                            Session? session;
+                            Connections.sessions.Remove(key, out session);
+                            Connections.connections.Remove(session!.GetClientID(), out _);
+                            if (session?.GetSessionID() != null)
+                            {
+                                Connections.users.Remove(session!.GetUserData()!.username, out _);
+                            }
                             Console.WriteLine("Removed session {0}", key);
                         }
                         else

@@ -5,6 +5,25 @@ namespace HangmanServer.src.Controllers.Dictionary
 {
     [ApiController]
     [Route("Dictionary/[controller]")]
+    public class DownloadController : Controller
+    {
+        [HttpGet(Name = "Download")]
+        public IActionResult Download([FromQuery] string language = "hu")
+        {
+            if (language == "hu")
+            {
+                var filePath = $"{Environment.CurrentDirectory}/HangmanServerData/magyar_szavak.txt";
+                var contentType = "application/octet-stream";
+                var fileName = Path.GetFileName(filePath);
+                return PhysicalFile(filePath, contentType, fileName);
+            }
+
+            return Ok(new RequestResult { message = "Language not supported!", result = false });
+        }
+    }
+
+    [ApiController]
+    [Route("Dictionary/[controller]")]
     public class ParametersController : Controller
     {
         class ParametersResult: RequestResult
