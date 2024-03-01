@@ -69,6 +69,10 @@ namespace HangmanServer.src.Multiplayer.SignalR
                 await Clients.Client(game.signalR_challengerID).SendAsync("MatchAborted");
                 await Clients.Client(game.signalR_challengedID).SendAsync("MatchAborted");
             }
+            else
+            {
+                await Clients.Caller.SendAsync("SearchAborted");
+            }
         }
 
         public async Task Guess(Guid matchID, string guess)
@@ -127,8 +131,7 @@ namespace HangmanServer.src.Multiplayer.SignalR
                         }
                     }
 
-                    await Console.Out.WriteLineAsync($"Game state is {resultChallenger!.state}");
-                    if (resultChallenger.state == GameState.ChallengerWon)
+                    if (resultChallenger!.state == GameState.ChallengerWon)
                     {
                         await Clients.Client(game.signalR_challengerID).SendAsync("ChallengerWon", resultChallenger);
                         await Clients.Client(game.signalR_challengedID).SendAsync("ChallengerWon", resultChallenged);

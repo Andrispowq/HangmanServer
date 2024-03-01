@@ -12,9 +12,6 @@ namespace HangmanServer
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            Task.Run(Server.UpdateThread);
-            Task.Run(Server.CommandThread);
-
             builder.WebHost.ConfigureKestrel(serverOptions =>
             {
                 serverOptions.ListenAnyIP(6969);
@@ -60,6 +57,9 @@ namespace HangmanServer
             app.MapControllers();
 
             app.MapHub<MultiplayerHub>("/MultiplayerHub");
+
+            Task.Run(Server.UpdateThread);
+            Task.Run(Server.CommandThread);
 
             app.Run();
         }

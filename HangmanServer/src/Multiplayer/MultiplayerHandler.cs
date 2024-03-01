@@ -192,15 +192,6 @@ namespace HangmanServer
                 result.playersTurn = !coState.challengersRound;
                 result.totalGuesses = coState.guesses;
             }
-            if (result.guessedWord == coState.word)
-            {
-                if (challenger != coState.challengerGuessed)
-                {
-                    coState.challengerGuessed = false;
-                    coState.words.Add(Words.GetWord());
-                    coState.SetWord(coState.words.Last());
-                }
-            }
             return result;
         }
 
@@ -430,6 +421,20 @@ namespace HangmanServer
                 {
                     Console.WriteLine("Timed out multiplayer game " + game.matchID);
                     AbortGame(game.challenger.GetSessionID());
+
+                    List<Guid> removedMatchIDs = new();
+                    foreach (var matchID in matchIDs)
+                    {
+                        if (matchID.Value.matchID == game.matchID)
+                        {
+                            removedMatchIDs.Add(matchID.Key);
+                        }
+                    }
+
+                    foreach (var matchID in removedMatchIDs)
+                    {
+                        matchIDs.Remove(matchID, out _);
+                    }
                 }
             }
         }

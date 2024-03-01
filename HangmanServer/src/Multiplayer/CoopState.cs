@@ -106,29 +106,33 @@ namespace HangmanServer
         public string GuessChallenger(char guess)
         {
             string _guessedWord = guessedWord;
-            string _currWord = word;
             if (challengersRound)
             {
                 challengersRound = false;
                 if (guessedWords != DefaultWords)
                 {
                     _guessedWord = Guess(true, guess);
-                    if(_guessedWord == word)
+                    if (_guessedWord == word)
                     {
                         guessedWords++;
                         challengerGuessed = true;
+
+                        if (guessedWords != DefaultWords)
+                        {
+                            words.Add(Words.GetWord());
+                            SetWord(words.Last());
+                        }
                     }
                 }
             }
 
-            UpdateState(_currWord);
+            UpdateState();
             return _guessedWord;
         }
 
         public string GuessChallenged(char guess)
         {
             string _guessedWord = guessedWord;
-            string _currWord = word;
             if (!challengersRound)
             {
                 challengersRound = true;
@@ -139,15 +143,21 @@ namespace HangmanServer
                     {
                         guessedWords++;
                         challengerGuessed = false;
+
+                        if (guessedWords != DefaultWords)
+                        {
+                            words.Add(Words.GetWord());
+                            SetWord(words.Last());
+                        }
                     }
                 }
             }
 
-            UpdateState(_currWord);
+            UpdateState();
             return _guessedWord;
         }
 
-        public void UpdateState(string currWord)
+        public void UpdateState()
         {
             RefreshGame();
 
