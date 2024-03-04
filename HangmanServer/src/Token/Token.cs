@@ -67,7 +67,7 @@ namespace HangmanServer
             }
             else
             {
-                loginRequest.message = "ERROR: token expired!";
+                loginRequest.reason = src.Controllers.ErrorReasons.TokenIDExpired;
             }
 
             return loginRequest;

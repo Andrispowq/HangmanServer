@@ -21,7 +21,7 @@ namespace HangmanServer.Controllers
 
             if(Connections.connections.ContainsKey(request.clientID))
             {
-                result.message = "Client with clientID is already connected!";
+                result.reason = src.Controllers.ErrorReasons.ClientIDAlreadyConnected;
             }
             else
             {

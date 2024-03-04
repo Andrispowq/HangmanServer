@@ -31,7 +31,7 @@ namespace HangmanServer.src.Controllers.Multiplayer
             }
             else
             {
-                result.message = "ConnectionID not found!"; 
+                result.reason = ErrorReasons.ConnectionIDNotFound; 
             }
 
             return Ok(result);

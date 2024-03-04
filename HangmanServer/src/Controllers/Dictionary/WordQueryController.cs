@@ -22,12 +22,12 @@ namespace HangmanServer.src.Controllers.Dictionary
                 }
                 else
                 {
-                    result.message = "SessionID not found!";
+                    result.reason = ErrorReasons.SessionIDNotFound;
                 }
             }
             else
             {
-                result.message = "Language not supported!";
+                result.reason = ErrorReasons.LanguageNotSupported;
             }
 
             return Ok(result);

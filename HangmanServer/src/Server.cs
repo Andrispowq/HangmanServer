@@ -17,19 +17,143 @@ namespace HangmanServer
             return users.ContainsKey(username);
         }
 
+        public static Session? FindSessionByUsername(string username)
+        {
+            if (users.ContainsKey(username))
+            {
+                var connID = users[username];
+                if (sessions.ContainsKey(connID))
+                {
+                    return sessions[connID];
+                }
+            }
+
+            return null;
+        }
+
+        public static void LogoutByUsername(string username)
+        {
+            Session? session = FindSessionByUsername(username);
+            if (session != null)
+            {
+                if (session.GetUserData() != null)
+                {
+                    users.Remove(session.GetUserData()!.username, out _);
+                    sessionIDs.Remove(session.GetSessionID(), out _);
+                }
+                session.LogoutUser();
+            }
+        }
+
+        public static void DisconnectByUsername(string username)
+        {
+            Session? session = FindSessionByUsername(username);
+            if(session != null)
+            {
+                sessions.Remove(session.GetSessionID(), out _);
+                connections.Remove(session.GetClientID(), out _);
+                if(session.GetUserData() != null)
+                {
+                    users.Remove(session.GetUserData()!.username, out _);
+                    sessionIDs.Remove(session.GetSessionID(), out _);
+                }
+                session.LogoutUser();
+            }
+        }
+
+        public static bool IsClientConnected(Guid clientID)
+        {
+            return connections.ContainsKey(clientID);
+        }
+
+        public static Session? FindSessionByClientID(Guid clientID)
+        {
+            if (connections.ContainsKey(clientID))
+            {
+                var connID = connections[clientID];
+                if (sessions.ContainsKey(connID))
+                {
+                    return sessions[connID];
+                }
+            }
+
+            return null;
+        }
+
+        public static void DisconnectByClientID(Guid clientID)
+        {
+            Session? session = FindSessionByClientID(clientID);
+            if (session != null)
+            {
+                sessions.Remove(session.GetSessionID(), out _);
+                connections.Remove(session.GetClientID(), out _);
+                if (session.GetUserData() != null)
+                {
+                    users.Remove(session.GetUserData()!.username, out _);
+                    sessionIDs.Remove(session.GetSessionID(), out _);
+                }
+                session.LogoutUser();
+            }
+        }
+
         public static Session? FindSessionBySessionID(Guid sessionID)
         {
             if(sessionIDs.ContainsKey(sessionID))
             {
                 var connID = sessionIDs[sessionID];
-                //This is pretty pointless considering the server architecture but better safe than sorry
                 if (sessions.ContainsKey(connID))
                 {
-                    return sessions[sessionIDs[sessionID]];
+                    return sessions[connID];
                 }
             }
 
             return null;
+        }
+
+        public static void LogoutBySessionID(Guid sessionID)
+        {
+            Session? session = FindSessionBySessionID(sessionID);
+            if (session != null)
+            {
+                if (session.GetUserData() != null)
+                {
+                    users.Remove(session.GetUserData()!.username, out _);
+                    sessionIDs.Remove(session.GetSessionID(), out _);
+                }
+                session.LogoutUser();
+            }
+        }
+
+        public static void DisconnectBySessionID(Guid sessionID)
+        {
+            Session? session = FindSessionBySessionID(sessionID);
+            if (session != null)
+            {
+                sessions.Remove(session.GetSessionID(), out _);
+                connections.Remove(session.GetClientID(), out _);
+                if (session.GetUserData() != null)
+                {
+                    users.Remove(session.GetUserData()!.username, out _);
+                    sessionIDs.Remove(session.GetSessionID(), out _);
+                }
+                session.LogoutUser();
+            }
+        }
+
+        public static void DisconnectByConnectionID(Guid connID)
+        {
+            if (sessions.ContainsKey(connID))
+            {
+                Session session = sessions[connID];
+                sessions.Remove(session.GetSessionID(), out _);
+                connections.Remove(session.GetClientID(), out _);
+                if (session.GetUserData() != null)
+                {
+                    users.Remove(session.GetUserData()!.username, out _);
+                    sessionIDs.Remove(session.GetSessionID(), out _);
+                }
+                session.LogoutUser();
+            }
         }
     }
 
@@ -120,13 +244,7 @@ namespace HangmanServer
                 foreach (var ID in timeouts)
                 {
                     Console.WriteLine("Timed out session (sessionID: {0})", ID);
-                    Session? session;
-                    Connections.sessions.Remove(ID, out session);
-                    Connections.connections.Remove(session!.GetClientID(), out _);
-                    if (session?.GetSessionID() != Guid.Empty)
-                    {
-                        Connections.users.Remove(session!.GetUserData()!.username, out _);
-                    }
+                    Connections.DisconnectByConnectionID(ID);
                 }
 
                 if (timeouts.Count > 0)
@@ -252,6 +370,7 @@ namespace HangmanServer
                         Connections.sessions.Clear();
                         Connections.users.Clear();
                         Connections.connections.Clear();
+                        Connections.sessionIDs.Clear();
                         break;
                     case "-tall":
                     case "-ta":
@@ -292,7 +411,7 @@ namespace HangmanServer
                         }
 
                         break;
-                    case "-session":
+                    case "-sessionID":
                     case "-s":
                         if (args.Length != 2)
                         {
@@ -308,14 +427,7 @@ namespace HangmanServer
 
                         if (Connections.sessions.ContainsKey(key))
                         {
-                            Session? session;
-                            Connections.sessions.Remove(key, out session);
-                            Connections.connections.Remove(session!.GetClientID(), out _);
-                            if (session?.GetSessionID() != null)
-                            {
-                                Connections.users.Remove(session!.GetUserData()!.username, out _);
-                            }
-                            Console.WriteLine("Removed session {0}", key);
+                            Connections.DisconnectByConnectionID(key);
                         }
                         else
                         {
@@ -323,6 +435,16 @@ namespace HangmanServer
                             return -1;
                         }
 
+                        break;
+                    case "-session":
+                    case "-sn":
+                        if (args.Length != 2)
+                        {
+                            Console.WriteLine("Disconnect -sn: ERROR: too few arguments provided");
+                            return -1;
+                        }
+
+                        Connections.DisconnectByUsername(args[1]);
                         break;
                     case "-w":
                     case "-waiting":
@@ -373,7 +495,8 @@ namespace HangmanServer
                         Console.WriteLine("Disconnect: ");
                         Console.WriteLine("\t-a/all: disconnect all sessions");
                         Console.WriteLine("\t-ta/tall: invalidates all tokens");
-                        Console.WriteLine("\t-s/session <ID>: disconnect session with connetion ID <ID>");
+                        Console.WriteLine("\t-s/sessionID <ID>: disconnect session with connetion ID <ID>");
+                        Console.WriteLine("\t-sn/session <ID>: disconnect session with connetion ID <ID>");
                         Console.WriteLine("\t-t/token <ID>: invalidate token with token ID <ID>");
                         Console.WriteLine("\t-w/waiting <ID>: remove session with session ID <ID> from queue");
                         Console.WriteLine("\t-m/match <ID>: abort game with match ID <ID>");

@@ -1,4 +1,5 @@
 ﻿using System;
+using HangmanServer.src.Controllers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HangmanServer.Controllers.Account
@@ -19,7 +20,7 @@ namespace HangmanServer.Controllers.Account
             }
             else
             {
-                result.message = "ConnectionID not found!";
+                result.reason = ErrorReasons.ConnectionIDNotFound;
             }
 
             return Ok(result);

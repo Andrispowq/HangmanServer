@@ -1,4 +1,5 @@
 ﻿using System;
+using HangmanServer.src.Controllers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -33,7 +34,7 @@ namespace HangmanServer.Controllers.Account
 
                 if (user == null)
                 {
-                    result.message = "Session has no user logged in!";
+                    result.reason = ErrorReasons.UserNotLoggedIn;
                 }
                 else
                 {
@@ -48,26 +49,24 @@ namespace HangmanServer.Controllers.Account
                             case EraseKind.Data:
                                 user.DeleteUserData();
                                 result.result = true;
-                                result.message = "Deleted user data";
                                 break;
                             case EraseKind.Account:
                                 user.DeleteUserData();
                                 RequestHandlers.database.DeleteUser(user.username);
                                 Connections.sessions.Remove(toModify.GetConnectionID(), out _);
                                 result.result = true;
-                                result.message = "Deleted user account";
                                 break;
                         }
                     }
                     else
                     {
-                        result.message = "Password didn't confirm!";
+                        result.reason = ErrorReasons.PasswordNotMatching;
                     }
                 }
             }
             else
             {
-                result.message = "SessionID not found!";
+                result.reason = ErrorReasons.SessionIDNotFound;
             }
 
             return Ok(result);

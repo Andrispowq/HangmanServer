@@ -34,7 +34,7 @@ namespace HangmanServer.Controllers
             }
             else
             {
-                result.message = "SessionID not found!";
+                result.reason = src.Controllers.ErrorReasons.SessionIDNotFound;
             }
 
             return Ok(result);

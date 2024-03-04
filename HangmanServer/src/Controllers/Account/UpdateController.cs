@@ -1,4 +1,5 @@
 ﻿using System;
+using HangmanServer.src.Controllers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HangmanServer.Controllers.Account
@@ -26,7 +27,7 @@ namespace HangmanServer.Controllers.Account
             }
             else
             {
-                result.message = "SessionID not found!";
+                result.reason = ErrorReasons.SessionIDNotFound;
             }
 
             return Ok(result);

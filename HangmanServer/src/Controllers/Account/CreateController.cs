@@ -1,4 +1,5 @@
 ﻿using System;
+using HangmanServer.src.Controllers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,24 +25,24 @@ namespace HangmanServer.Controllers.Account
 
             if(request.username.Length < 1)
             {
-                result.message = "Username can't be empty!";
+                result.reason = ErrorReasons.UsernameEmpty;
                 return Ok(result);
             }
             if(request.username.Length > 30)
             {
-                result.message = "Username can't be longer than 30 characters!";
+                result.reason = ErrorReasons.UsernameTooLong;
                 return Ok(result);
             }
             if (request.username.Contains("\n"))
             {
-                result.message = "Username can't contain new line!";
+                result.reason = ErrorReasons.UsernameHasNewline;
                 return Ok(result);
             }
 
             string username = request.username;
             if(!username.All(char.IsLetterOrDigit))
             {
-                result.message = "Username contains illegal character!";
+                result.reason = ErrorReasons.UsernameHasIllegalChar;
                 return Ok(result);
             }
 
@@ -53,7 +54,7 @@ namespace HangmanServer.Controllers.Account
             }
             else
             {
-                result.message = "ConnectionID not found!";
+                result.reason = ErrorReasons.ConnectionIDNotFound;
             }
 
             return Ok(result);

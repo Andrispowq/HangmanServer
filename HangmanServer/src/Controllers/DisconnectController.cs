@@ -19,7 +19,7 @@ namespace HangmanServer.Controllers
 
             if (!Connections.sessions.ContainsKey(request.connectionID))
             {
-                result.message = "ConnectionID not found!";
+                result.reason = src.Controllers.ErrorReasons.ConnectionIDNotFound;
             }
             else
             {
@@ -33,8 +33,8 @@ namespace HangmanServer.Controllers
                     }
                 }
 
-                result.result = Connections.sessions.Remove(request.connectionID, out _);
-                Connections.connections.Remove(session.GetClientID(), out _);
+                Connections.DisconnectByConnectionID(request.connectionID);
+                result.result = true;
             }
 
             return Ok(result);

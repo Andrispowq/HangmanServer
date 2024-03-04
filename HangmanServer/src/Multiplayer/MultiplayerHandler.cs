@@ -362,7 +362,7 @@ namespace HangmanServer
             }
             else
             {
-                request.message = "MatchID not found!";
+                request.reason = src.Controllers.ErrorReasons.MatchIDNotFound;
             }
 
             return request;
@@ -380,7 +380,7 @@ namespace HangmanServer
             }
             else
             {
-                request.message = "MatchID not found!";
+                request.reason = src.Controllers.ErrorReasons.MatchIDNotFound;
             }
 
             return request;

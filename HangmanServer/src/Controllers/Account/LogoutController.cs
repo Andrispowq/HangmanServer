@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HangmanServer.src.Controllers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HangmanServer.Controllers.Account
@@ -30,14 +31,12 @@ namespace HangmanServer.Controllers.Account
                     Multiplayer.handler.AbortGame(request.sessionID);
                 }
 
-                Connections.users.Remove(session.GetUserData()!.username, out _);
-                Connections.sessionIDs.Remove(request.sessionID, out _);
-                session.LogoutUser();
+                Connections.LogoutBySessionID(request.sessionID);
                 result.result = true;
             }
             else
             {
-                result.message = "SessionID not found!";
+                result.reason = ErrorReasons.SessionIDNotFound;
             }
 
             return Ok(result);

@@ -18,7 +18,7 @@ namespace HangmanServer.src.Controllers.Dictionary
                 return PhysicalFile(filePath, contentType, fileName);
             }
 
-            return Ok(new RequestResult { message = "Language not supported!", result = false });
+            return Ok(new RequestResult { reason = ErrorReasons.LanguageNotSupported, result = false });
         }
     }
 
@@ -46,15 +46,15 @@ namespace HangmanServer.src.Controllers.Dictionary
             }
             else
             {
-                return Ok(new ParametersResult { length = 0, message = "Language not supported!", result = false });
+                return Ok(new ParametersResult { length = 0, reason = ErrorReasons.LanguageNotSupported, result = false });
             }
 
             if (words == null)
             {
-                return Ok(new ParametersResult { length = 0, message = "Language dictionary not found!", result = false });
+                return Ok(new ParametersResult { length = 0, reason = ErrorReasons.LanguageNotFound, result = false });
             }
 
-            return Ok(new ParametersResult { length = words.Length, message = "", result = true });
+            return Ok(new ParametersResult { length = words.Length, reason = 0, result = true });
         }
     }
 
@@ -82,24 +82,24 @@ namespace HangmanServer.src.Controllers.Dictionary
             }
             else
             {
-                return Ok(new ContentResult { words = null, message = "Language not supported!", result = false });
+                return Ok(new ContentResult { words = null, reason = ErrorReasons.LanguageNotSupported, result = false });
             }
 
             if (words == null)
             {
-                return Ok(new ContentResult { words = null, message = "Language dictionary not found!", result = false });
+                return Ok(new ContentResult { words = null, reason = ErrorReasons.LanguageNotFound, result = false });
             }
 
             if (start < 0 || count < 0 || start >= words.Length || (start + count) > words.Length)
             {
-                return Ok(new ContentResult { words = null, message = "Indices out of bounds!", result = false });
+                return Ok(new ContentResult { words = null, reason = ErrorReasons.IndexOutOfBounds, result = false });
             }
             if(count > 1000)
             {
-                return Ok(new ContentResult { words = null, message = "Count is larger than 1000!", result = false });
+                return Ok(new ContentResult { words = null, reason = ErrorReasons.CountOverLimit, result = false });
             }
 
-            return Ok(new ContentResult { words = words[start..(start+count)], message = "", result = true });
+            return Ok(new ContentResult { words = words[start..(start+count)], reason = 0, result = true });
         }
     }
 }

@@ -1,9 +1,11 @@
-﻿namespace HangmanServer
+﻿using HangmanServer.src.Controllers;
+
+namespace HangmanServer
 {
     public class RequestResult
     {
         public bool result {  get; set; }
-        public string message { get; set; } = "";
+        public ErrorReasons reason { get; set; } = ErrorReasons.Success;
     }
 
     public class ConnectResult : RequestResult
@@ -67,6 +69,27 @@
             return result;
         }
 
+        public static bool CheckPassword(Session session, string username, string password, bool plain = false)
+        {
+            lock (_lock)
+            {
+                if (database.UserExists(username))
+                {
+                    string password_decrypted = password;
+                    if (!plain)
+                    {
+                        password_decrypted = session.Decrypt(password);
+                    }
+
+                    string pass_try = database.SecurePassword(database.GetUserID(username), password_decrypted);
+                    string hash = Crypto.GetHashString(pass_try);
+                    return database.TryLogin(username, hash, out _);
+                }
+            }
+
+            return false;
+        }
+
         public static UserLoginResult HandleUserLogin(Session session, string username, string password, out User? user, bool plain = false)
         {
             user = null;
@@ -101,7 +124,7 @@
             }
             else
             {
-                result.message = "Session has no active user!";
+                result.reason = ErrorReasons.UserNotLoggedIn;
             }
 
             return result;
@@ -120,7 +143,7 @@
             }
             else
             {
-                result.message = "Session has no active user!";
+                result.reason = ErrorReasons.UserNotLoggedIn;
             }
 
             return result;
@@ -156,7 +179,7 @@
             }
             else
             {
-                result.message = "Session has no active user!";
+                result.reason = ErrorReasons.UserNotLoggedIn;
             }
 
             return result;

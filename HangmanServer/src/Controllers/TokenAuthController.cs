@@ -75,28 +75,28 @@ namespace HangmanServer.Controllers
                             else
                             {
                                 Tokens.tokens.TryRemove(request.tokenID, out _);
-                                result.message = "ERROR: tokenID expired";
+                                result.reason = src.Controllers.ErrorReasons.TokenIDExpired;
                             }
                         }
                         else
                         {
-                            result.message = "ERROR: user is already logged in!";
+                            result.reason = src.Controllers.ErrorReasons.UserAlreadyLoggedIn;
                         }
 
                     }
                     else
                     {
-                        result.message = "TokenID not found!";
+                        result.reason = src.Controllers.ErrorReasons.TokenIDNotFound;
                     }
                 }
                 else
                 {
-                    result.message = "Session already has an active user!";
+                    result.reason = src.Controllers.ErrorReasons.SessionHasUser;
                 }
             }
             else
             {
-                result.message = "ConnectionID not found!";
+                result.reason = src.Controllers.ErrorReasons.ConnectionIDNotFound;
             }
 
             return Ok(result);

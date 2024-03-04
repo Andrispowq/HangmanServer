@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using HangmanServer.src.Controllers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -46,27 +47,27 @@ namespace HangmanServer.Controllers.Account
                             }
                             else
                             {
-                                result.message = "Password doesn't match!";
+                                result.reason = ErrorReasons.PasswordNotMatching;
                             }
                         }
                         else
                         {
-                            result.message = "User doesn't exist!";
+                            result.reason = ErrorReasons.UserDoesNotExist;
                         }
                     }
                     else
                     {
-                        result.message = "User is already logged in!";
+                        result.reason = ErrorReasons.UserAlreadyLoggedIn;
                     }
                 }
                 else
                 {
-                    result.message = "Session already has an active user!";
+                    result.reason = ErrorReasons.SessionHasUser;
                 }
             }
             else
             {
-                result.message = "ConnectionID not found!";
+                result.reason = ErrorReasons.ConnectionIDNotFound;
             }
 
             return Ok(result);
