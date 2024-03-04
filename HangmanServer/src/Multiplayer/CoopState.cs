@@ -37,9 +37,12 @@ namespace HangmanServer
         public bool requestedGuessedWord = false;
         public bool challengerGuessed = false;
 
-        public CoopState()
+        public string language;
+
+        public CoopState(string language)
         {
-            string word = Words.GetWord();
+            this.language = language;
+            string word = Dictionaries.GetWord(language);
             words.Add(word);
             SetWord(word);
             state = GameState.Ongoing;
@@ -119,7 +122,7 @@ namespace HangmanServer
 
                         if (guessedWords != DefaultWords)
                         {
-                            words.Add(Words.GetWord());
+                            words.Add(Dictionaries.GetWord(language));
                             SetWord(words.Last());
                         }
                     }
@@ -146,7 +149,7 @@ namespace HangmanServer
 
                         if (guessedWords != DefaultWords)
                         {
-                            words.Add(Words.GetWord());
+                            words.Add(Dictionaries.GetWord(language));
                             SetWord(words.Last());
                         }
                     }
@@ -174,17 +177,6 @@ namespace HangmanServer
                 state = GameState.ChallengedWon;
                 return;
             }
-
-            /*if (challengerState.GetWrongGuesses(currWord) < challengedState.GetWrongGuesses(currWord))
-            {
-                state = GameState.ChallengerWon;
-                return;
-            }
-            else if (challengerState.GetWrongGuesses(currWord) > challengedState.GetWrongGuesses(currWord))
-            {
-                state = GameState.ChallengedWon;
-                return;
-            }*/
 
             state = GameState.Draw;
         }

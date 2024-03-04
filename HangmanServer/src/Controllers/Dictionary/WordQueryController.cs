@@ -18,7 +18,7 @@ namespace HangmanServer.src.Controllers.Dictionary
                 Session? session = Connections.FindSessionBySessionID(sessionID);
                 if (session != null)
                 {
-                    result = RequestHandlers.HandleWordRequest();
+                    result = RequestHandlers.HandleWordRequest(language);
                 }
                 else
                 {

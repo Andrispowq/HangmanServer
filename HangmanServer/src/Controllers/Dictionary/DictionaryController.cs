@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using HangmanServer.src;
 
 namespace HangmanServer.src.Controllers.Dictionary
 {
@@ -34,24 +35,10 @@ namespace HangmanServer.src.Controllers.Dictionary
         [HttpGet(Name = "Parameters")]
         public IActionResult GetParameters([FromQuery] string language = "hu")
         {
-            string[]? words;
-            if (language == "hu")
-            {
-                if (Words.words_array == null)
-                {
-                    _ = Words.GetWord(); //load db
-                }
-
-                words = Words.words_array;
-            }
-            else
+            string[]? words = Dictionaries.GetWords(language);
+            if(words == null)
             {
                 return Ok(new ParametersResult { length = 0, reason = ErrorReasons.LanguageNotSupported, result = false });
-            }
-
-            if (words == null)
-            {
-                return Ok(new ParametersResult { length = 0, reason = ErrorReasons.LanguageNotFound, result = false });
             }
 
             return Ok(new ParametersResult { length = words.Length, reason = 0, result = true });
@@ -70,24 +57,10 @@ namespace HangmanServer.src.Controllers.Dictionary
         [HttpGet(Name = "Content")]
         public IActionResult GetContent([FromQuery] int start = 0, [FromQuery] int count = 0, [FromQuery] string language = "hu")
         {
-            string[]? words;
-            if (language == "hu")
-            {
-                if (Words.words_array == null)
-                {
-                    _ = Words.GetWord(); //load db
-                }
-
-                words = Words.words_array;
-            }
-            else
+            string[]? words = Dictionaries.GetWords(language);
+            if(words == null)
             {
                 return Ok(new ContentResult { words = null, reason = ErrorReasons.LanguageNotSupported, result = false });
-            }
-
-            if (words == null)
-            {
-                return Ok(new ContentResult { words = null, reason = ErrorReasons.LanguageNotFound, result = false });
             }
 
             if (start < 0 || count < 0 || start >= words.Length || (start + count) > words.Length)

@@ -25,8 +25,11 @@ namespace HangmanServer
         public GameData state;
         public string currentWord = "";
 
+        public string language;
+
         public OngoingGame(MultiplayerRequest challenger, MultiplayerRequest challenged)
         {
+            this.language = challenger.session.language;
             this.challenger = challenger.session;
             this.challenged = challenged.session;
             signalR_challengerID = challenger.signalR_ID;
@@ -36,13 +39,13 @@ namespace HangmanServer
             switch (type)
             {
                 case GameType.Versus:
-                    state = new VersusState();
+                    state = new VersusState(language);
                     break;
                 case GameType.Campaign:
-                    state = new CampaignState();
+                    state = new CampaignState(language);
                     break;
                 case GameType.Cooperation:
-                    state = new CoopState();
+                    state = new CoopState(language);
                     break;
                 default:
                     state = new GameData();

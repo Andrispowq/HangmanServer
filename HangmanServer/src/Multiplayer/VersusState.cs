@@ -79,9 +79,12 @@ namespace HangmanServer
         public List<String> words = new List<String>();
         public bool challengerGuessedLastFirst = false;
 
-        public VersusState()
+        public string language;
+
+        public VersusState(string language)
         {
-            string word = Words.GetWord();
+            this.language = language;
+            string word = Dictionaries.GetWord(language);
             words.Add(word);
             challengerState.SetWord(word);
             challengedState.SetWord(word);
@@ -101,7 +104,7 @@ namespace HangmanServer
                     {
                         if (words.Last() == challengerState.word)
                         {
-                            words.Add(Words.GetWord());
+                            words.Add(Dictionaries.GetWord(language));
                         }
                         challengerState.SetWord(words[words.IndexOf(challengerState.word) + 1]);
                     }
@@ -129,7 +132,7 @@ namespace HangmanServer
                     {
                         if (words.Last() == challengedState.word)
                         {
-                            words.Add(Words.GetWord());
+                            words.Add(Dictionaries.GetWord(language));
                         }
                         challengedState.SetWord(words[words.IndexOf(challengedState.word) + 1]);
                     }

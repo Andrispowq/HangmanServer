@@ -175,16 +175,22 @@ namespace HangmanServer
         private static bool exitThread = false;
         private static Dictionary<string, Func<string[], int>> commandHandlers = new();
 
-        public static void InitialiseServer()
+        public static bool InitialiseServer()
         {
             //loads the config at GetInstance()
             if (!Directory.Exists(Config.GetConfig().serverFolder))
             {
-                Console.WriteLine($"Creating directory {Config.GetConfig().serverFolder}");
                 Directory.CreateDirectory(Config.GetConfig().serverFolder);
             }
 
+            if(!Dictionaries.LoadDictionaries())
+            {
+                Console.WriteLine("Error loading dictionaries!");
+                return false;
+            }
+
             SetupCommands();
+            return true;
         }
 
         public static void UpdateThread()

@@ -21,7 +21,11 @@ namespace HangmanServer
                 });
             });
 
-            Server.InitialiseServer();
+            if(!Server.InitialiseServer())
+            {
+                Console.WriteLine("Error while starting server!\nShutting down...");
+                return;
+            }
 
             builder.Services.AddControllers();
 

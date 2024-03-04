@@ -185,11 +185,11 @@ namespace HangmanServer
             return result;
         }
 
-        public static UserWordResult HandleWordRequest()
+        public static UserWordResult HandleWordRequest(string language)
         {
             UserWordResult result = new();
             result.result = true;
-            result.word = Words.GetWord();
+            result.word = Dictionaries.GetWord(language);
             return result;
         }
     }

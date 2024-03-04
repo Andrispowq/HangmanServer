@@ -15,6 +15,9 @@ namespace HangmanServer
         private User? userData;
 
         private static double DefaultTimeout = Config.GetConfig().timeoutMinutes * 60.0;
+        private static string DefaultLanguage = "hu";
+
+        public string language = DefaultLanguage;
 
         public Session(Guid clientID)
         {
@@ -35,6 +38,11 @@ namespace HangmanServer
         {
             this.sessionID = Guid.Empty;
             this.userData = null;
+        }
+
+        public void ChangeLanguage(string language)
+        {
+            this.language = language;
         }
 
         public string Decrypt(string encrypted)
