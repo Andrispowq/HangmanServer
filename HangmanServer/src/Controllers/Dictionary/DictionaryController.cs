@@ -30,6 +30,7 @@ namespace HangmanServer.src.Controllers.Dictionary
         class ParametersResult: RequestResult
         {
             public int length { get; set; }
+            public string? hash { get; set; }
         }
 
         [HttpGet(Name = "Parameters")]
@@ -41,7 +42,13 @@ namespace HangmanServer.src.Controllers.Dictionary
                 return Ok(new ParametersResult { length = 0, reason = ErrorReasons.LanguageNotSupported, result = false });
             }
 
-            return Ok(new ParametersResult { length = words.Length, reason = 0, result = true });
+            string? hash = Dictionaries.GetHash(language);
+            if(hash == null)
+            {
+                return Ok(new ParametersResult { length = 0, reason = ErrorReasons.LanguageNotFound, result = false });
+            }
+
+            return Ok(new ParametersResult { hash = hash, length = words.Length, reason = 0, result = true });
         }
     }
 

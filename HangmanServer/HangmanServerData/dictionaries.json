@@ -1,6 +1,7 @@
 [
     {
         "language": "hu",
-        "location": "dict-hu.txt"
+        "location": "dict-hu.txt",
+        "hash": null
     }
 ]

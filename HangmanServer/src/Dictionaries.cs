@@ -5,20 +5,21 @@ using System.Text.Json;
 
 namespace HangmanServer
 {
-    public class Dictionaries
+    internal struct DictionaryEntry
     {
-        internal struct DictionaryEntry
-        {
-            public string language { get; set; }
-            public string location { get; set; }
-        }
+        public string language { get; set; }
+        public string location { get; set; }
+        public string? hash { get; set; }
+    }
 
+    internal class Dictionaries
+    {
         public static string DefaultLanguage = "hu";
 
-        public static ConcurrentDictionary<string, string> languages = new();
+        public static ConcurrentDictionary<string, DictionaryEntry> languages = new();
         public static string[]? currentDictionary = null;
         public static string currentLanguage = "";
-
+         
         public static bool LoadDictionaries()
         {
             languages.Clear();
@@ -32,7 +33,15 @@ namespace HangmanServer
 
             foreach(var entry in languagesList)
             {
-                languages[entry.language] = entry.location;
+                DictionaryEntry savedEntry = entry;
+                if (savedEntry.hash == null)
+                {
+                    string path = $"{Config.GetConfig().serverFolder}/dictionaries/{savedEntry.location}";
+                    string content = File.ReadAllText(path);
+                    savedEntry.hash = Crypto.GetHashString(content);
+                }
+
+                languages[entry.language] = savedEntry;
             }
 
             return LoadLanguage(DefaultLanguage);
@@ -42,15 +51,26 @@ namespace HangmanServer
         {
             if (languages.ContainsKey(language) && currentLanguage != language)
             {
-                string file = languages[language];
                 currentDictionary = null;
-                string contents = File.ReadAllText($"{Config.GetConfig().serverFolder}/dictionaries/{file}");
+                string file = languages[language].location;
+                string path = $"{Config.GetConfig().serverFolder}/dictionaries/{file}";
+                string contents = File.ReadAllText(path);
                 currentDictionary = contents.Split('\n');
                 currentLanguage = language;
                 return true;
             }
 
             return false;
+        }
+
+        public static string? GetHash(string language)
+        {
+            if (languages.ContainsKey(language))
+            {
+                return languages[language].hash!;
+            }
+
+            return null;
         }
 
         public static string[]? GetWords(string language)
