@@ -11,9 +11,9 @@ namespace HangmanServer.src.Controllers.Dictionary
         [HttpGet(Name = "Download")]
         public IActionResult Download([FromQuery] string language = "hu")
         {
-            if (language == "hu")
+            if (Dictionaries.languages.ContainsKey(language))
             {
-                var filePath = $"{Environment.CurrentDirectory}/HangmanServerData/magyar_szavak.txt";
+                var filePath = $"{Environment.CurrentDirectory}/HangmanServerData/dictionaries/{Dictionaries.languages[language].location}";
                 var contentType = "application/octet-stream";
                 var fileName = Path.GetFileName(filePath);
                 return PhysicalFile(filePath, contentType, fileName);

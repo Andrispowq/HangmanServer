@@ -249,8 +249,9 @@ namespace HangmanServer
 
                 foreach (var ID in timeouts)
                 {
-                    Console.WriteLine("Timed out session (sessionID: {0})", ID);
                     Connections.DisconnectByConnectionID(ID);
+                    Console.WriteLine("Timed out session (sessionID: {0})", ID);
+                    Connections.sessions.Remove(ID, out _);
                 }
 
                 if (timeouts.Count > 0)
