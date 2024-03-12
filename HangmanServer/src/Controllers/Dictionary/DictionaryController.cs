@@ -5,7 +5,7 @@ using HangmanServer.src;
 namespace HangmanServer.src.Controllers.Dictionary
 {
     [ApiController]
-    [Route("Dictionary/[controller]")]
+    [Route("api/v1/Dictionary/[controller]")]
     public class DownloadController : Controller
     {
         [HttpGet(Name = "Download")]
@@ -24,7 +24,7 @@ namespace HangmanServer.src.Controllers.Dictionary
     }
 
     [ApiController]
-    [Route("Dictionary/[controller]")]
+    [Route("api/v1/Dictionary/[controller]")]
     public class ParametersController : Controller
     {
         class ParametersResult: RequestResult
@@ -53,7 +53,7 @@ namespace HangmanServer.src.Controllers.Dictionary
     }
 
     [ApiController]
-    [Route("Dictionary/[controller]")]
+    [Route("api/v1/Dictionary/[controller]")]
     public class ContentController : Controller
     {
         class ContentResult : RequestResult

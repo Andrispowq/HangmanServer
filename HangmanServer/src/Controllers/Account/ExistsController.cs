@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HangmanServer.Controllers.Account
 {
     [ApiController]
-    [Route("Account/[controller]")]
+    [Route("api/v1/Account/[controller]")]
     public class ExistsController : ControllerBase
     {
         [HttpGet(Name = "Exists")]

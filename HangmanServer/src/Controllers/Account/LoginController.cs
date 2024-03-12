@@ -15,7 +15,7 @@ namespace HangmanServer.Controllers.Account
     }
 
     [ApiController]
-    [Route("Account/[controller]")]
+    [Route("api/v1/Account/[controller]")]
     public class LoginController : ControllerBase
     {
         [HttpPost(Name = "Login")]

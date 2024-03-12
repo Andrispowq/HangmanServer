@@ -12,14 +12,14 @@ namespace HangmanServer
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.WebHost.ConfigureKestrel(serverOptions =>
+            /*builder.WebHost.ConfigureKestrel(serverOptions =>
             {
                 serverOptions.ListenAnyIP(6969);
                 serverOptions.ListenAnyIP(6970, listenOptions =>
                 {
                     listenOptions.UseHttps();
                 });
-            });
+            });*/
 
             if(!Server.InitialiseServer())
             {
@@ -32,7 +32,7 @@ namespace HangmanServer
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.AddCors(options =>
+            /*builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowedOrigins", policy =>
                 {
@@ -41,7 +41,7 @@ namespace HangmanServer
                                  .AllowAnyHeader()
                                  .AllowCredentials();
                 });
-            });
+            });*/
 
             builder.Services.AddSignalR();
 
@@ -54,13 +54,13 @@ namespace HangmanServer
             }
 
             app.UseHsts();
-            app.UseCors("AllowedOrigins");
+            //app.UseCors("AllowedOrigins");
 
             //app.UseHttpsRedirection();
             app.UseAuthorization();
             app.MapControllers();
 
-            app.MapHub<MultiplayerHub>("/MultiplayerHub");
+            app.MapHub<MultiplayerHub>("api/v1/MultiplayerHub");
 
             Task.Run(Server.UpdateThread);
             Task.Run(Server.CommandThread);

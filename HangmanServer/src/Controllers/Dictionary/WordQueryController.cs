@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HangmanServer.src.Controllers.Dictionary
 {
     [ApiController]
-    [Route("Dictionary/[controller]")]
+    [Route("api/v1/Dictionary/[controller]")]
     public class WordQueryController : ControllerBase
     {
         [HttpGet(Name = "WordQuery")]

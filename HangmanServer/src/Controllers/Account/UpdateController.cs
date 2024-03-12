@@ -11,7 +11,7 @@ namespace HangmanServer.Controllers.Account
     }
 
     [ApiController]
-    [Route("Account/[controller]")]
+    [Route("api/v1/Account/[controller]")]
     public class UpdateController : ControllerBase
     {
         [HttpPut(Name = "Update")]

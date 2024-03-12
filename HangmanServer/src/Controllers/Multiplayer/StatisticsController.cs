@@ -3,7 +3,7 @@
 namespace HangmanServer.src.Controllers.Multiplayer
 {
     [ApiController]
-    [Route("Multiplayer/[controller]")]
+    [Route("api/v1/Multiplayer/[controller]")]
     public class StatisticsController : Controller
     {
         class StatisticsResult : RequestResult

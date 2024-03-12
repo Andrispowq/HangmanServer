@@ -10,7 +10,7 @@ namespace HangmanServer.Controllers
     }
 
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/v1/[controller]")]
     public class ConnectController : ControllerBase
     {
         [HttpPost(Name = "CreateConnection")]

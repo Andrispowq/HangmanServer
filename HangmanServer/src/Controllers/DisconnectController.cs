@@ -8,7 +8,7 @@ namespace HangmanServer.Controllers
     }
 
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/v1/[controller]")]
     public class DisconnectController : ControllerBase
     {
         [HttpDelete(Name = "DestroyConnection")]

@@ -10,7 +10,7 @@ namespace HangmanServer.src.Controllers.Account
     }
 
     [ApiController]
-    [Route("Account/[controller]")]
+    [Route("api/v1/Account/[controller]")]
     public class ForceLogoutController : ControllerBase
     {
         [HttpDelete(Name = "ForceLogout")]
