@@ -56,6 +56,7 @@ namespace HangmanServer
                 string path = $"{Config.GetConfig().serverFolder}/dictionaries/{file}";
                 string contents = File.ReadAllText(path);
                 currentDictionary = contents.Split('\n');
+                Console.WriteLine($"Loaded {currentDictionary.Length} words");
                 currentLanguage = language;
                 return true;
             }
@@ -103,8 +104,18 @@ namespace HangmanServer
         {
             if (currentDictionary != null)
             {
-                string word = currentDictionary[new Random().Next(currentDictionary.Length)].ToLower();
-                if (word.Last() == '\r')
+                int tries = 3;
+                string word = "";
+                while (tries-- >= 0 && word == "")
+                {
+                    word = currentDictionary[new Random().Next(currentDictionary.Length)].ToLower();
+                }
+
+                if(word == "")
+                {
+                    word = "error";
+                }
+                else if (word.Last() == '\r')
                 {
                     word = word.Substring(0, word.Length - 1);
                 }

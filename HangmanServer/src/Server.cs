@@ -85,7 +85,7 @@ namespace HangmanServer
             Session? session = FindSessionByClientID(clientID);
             if (session != null)
             {
-                sessions.Remove(session.GetSessionID(), out _);
+                sessions.Remove(session.GetConnectionID(), out _);
                 connections.Remove(session.GetClientID(), out _);
                 if (session.GetUserData() != null)
                 {
@@ -129,7 +129,7 @@ namespace HangmanServer
             Session? session = FindSessionBySessionID(sessionID);
             if (session != null)
             {
-                sessions.Remove(session.GetSessionID(), out _);
+                sessions.Remove(session.GetConnectionID(), out _);
                 connections.Remove(session.GetClientID(), out _);
                 if (session.GetUserData() != null)
                 {
@@ -145,7 +145,7 @@ namespace HangmanServer
             if (sessions.ContainsKey(connID))
             {
                 Session session = sessions[connID];
-                sessions.Remove(session.GetSessionID(), out _);
+                sessions.Remove(connID, out _);
                 connections.Remove(session.GetClientID(), out _);
                 if (session.GetUserData() != null)
                 {

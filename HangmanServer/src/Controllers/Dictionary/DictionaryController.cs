@@ -14,7 +14,7 @@ namespace HangmanServer.src.Controllers.Dictionary
             if (Dictionaries.languages.ContainsKey(language))
             {
                 var filePath = $"{Environment.CurrentDirectory}/HangmanServerData/dictionaries/{Dictionaries.languages[language].location}";
-                var contentType = "application/octet-stream";
+                var contentType = "application/text";
                 var fileName = Path.GetFileName(filePath);
                 return PhysicalFile(filePath, contentType, fileName);
             }
