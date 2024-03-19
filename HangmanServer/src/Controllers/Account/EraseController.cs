@@ -53,7 +53,8 @@ namespace HangmanServer.Controllers.Account
                             case EraseKind.Account:
                                 user.DeleteUserData();
                                 RequestHandlers.database.DeleteUser(user.username);
-                                Connections.sessions.Remove(toModify.GetConnectionID(), out _);
+                                RequestHandlers.database.SaveData();
+                                Connections.LogoutBySessionID(request.sessionID);
                                 result.result = true;
                                 break;
                         }
