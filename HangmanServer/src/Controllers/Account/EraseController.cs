@@ -54,6 +54,26 @@ namespace HangmanServer.Controllers.Account
                                 user.DeleteUserData();
                                 RequestHandlers.database.DeleteUser(user.username);
                                 RequestHandlers.database.SaveData();
+                                
+                                lock (Tokens._lock)
+                                {
+                                    List<Guid> tokens = new List<Guid>();
+                                    foreach (var token in Tokens.tokens)
+                                    {
+                                        if (token.Value.GetUsername() == user.username)
+                                        {
+                                            tokens.Add(token.Key);
+                                        }
+                                    }
+
+                                    foreach (var token in tokens)
+                                    {
+                                        Tokens.tokens.Remove(token, out _);
+                                        Tokens.manager.RemoveToken(token);
+                                        Tokens.manager.SaveTokens();
+                                    }
+                                }
+
                                 Connections.LogoutBySessionID(request.sessionID);
                                 result.result = true;
                                 break;

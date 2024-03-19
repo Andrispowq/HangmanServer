@@ -45,6 +45,11 @@ namespace HangmanServer
             return info;
         }
 
+        public string GetUsername()
+        {
+            return user.username;
+        }
+
         public TokenAuthResult Authenticate()
         {
             TokenAuthResult loginRequest = new TokenAuthResult();
