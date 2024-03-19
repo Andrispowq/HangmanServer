@@ -2,7 +2,9 @@
 using HangmanServer.src.Multiplayer.SignalR;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.Extensions.Options;
 using System.Net.WebSockets;
+using System.Security.Cryptography.X509Certificates;
 
 namespace HangmanServer
 {
@@ -12,16 +14,7 @@ namespace HangmanServer
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            /*builder.WebHost.ConfigureKestrel(serverOptions =>
-            {
-                serverOptions.ListenAnyIP(6969);
-                serverOptions.ListenAnyIP(6970, listenOptions =>
-                {
-                    listenOptions.UseHttps();
-                });
-            });*/
-
-            if(!Server.InitialiseServer())
+            if (!Server.InitialiseServer())
             {
                 Console.WriteLine("Error while starting server!\nShutting down...");
                 return;
