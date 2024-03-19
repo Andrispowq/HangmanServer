@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  hangmanserver:
+    image: hangmanserver
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /opt/docker/certbot/certs:/opt/docker/certbot/certs:ro
+    environment:
+      - ASPNETCORE_URLS=https://+;http://+
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/opt/docker/certbot/certs/live/hangman.mptrdev.com/fullchain.pem
+      - ASPNETCORE_Kestrel__Certificates__Default__KeyPath=/opt/docker/certbot/certs/live/hangman.mptrdev.com/privkey.pem
+    restart: unless-stopped

@@ -20,5 +20,6 @@ RUN dotnet publish "./HangmanServer.csproj" -c $BUILD_CONFIGURATION -o /app/publ
 
 FROM base AS final
 WORKDIR /app
+COPY ["HangmanServer/HangmanServerData", "HangmanServerData"]
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "HangmanServer.dll"]
