@@ -285,8 +285,6 @@ namespace HangmanServer
                 {
                     break;
                 }
-
-                RequestHandlers.database.SaveData();
             }
 
             Environment.Exit(0);
