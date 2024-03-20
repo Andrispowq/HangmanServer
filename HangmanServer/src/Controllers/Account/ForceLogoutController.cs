@@ -22,6 +22,7 @@ namespace HangmanServer.src.Controllers.Account
             if (Connections.sessions.ContainsKey(request.connectionID))
             {
                 Session? thisSession = Connections.sessions[request.connectionID];
+                thisSession.RefreshSession();
                 Session? usersSession = Connections.FindSessionByUsername(request.username);
                 if (usersSession != null)
                 {

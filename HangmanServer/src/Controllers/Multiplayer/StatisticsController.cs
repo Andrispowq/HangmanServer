@@ -21,6 +21,7 @@ namespace HangmanServer.src.Controllers.Multiplayer
 
             if (Connections.sessions.ContainsKey(connectionID))
             {
+                Connections.sessions[connectionID].RefreshSession();
                 result.result = true;
                 result.activeUsers = Connections.sessions.Count();
                 lock (HangmanServer.Multiplayer._lock)

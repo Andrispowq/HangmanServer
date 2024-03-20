@@ -22,6 +22,8 @@ namespace HangmanServer.Controllers
             Session? session = Connections.FindSessionBySessionID(request.sessionID);
             if (session != null)
             {
+                session.RefreshSession();
+
                 Token token = Token.CreateToken(TokenType.LongtermSession, 30, session.GetUserData()!);
                 result.result = true;
                 result.tokenID = token.GetTokenID();

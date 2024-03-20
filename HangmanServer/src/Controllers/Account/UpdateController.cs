@@ -23,6 +23,7 @@ namespace HangmanServer.Controllers.Account
             Session? session = Connections.FindSessionBySessionID(request.sessionID);
             if(session != null)
             {
+                session.RefreshSession();
                 result = RequestHandlers.HandleUpdateUser(session.GetUserData(), request.data);
             }
             else

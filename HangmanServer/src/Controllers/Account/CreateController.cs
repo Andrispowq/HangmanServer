@@ -49,6 +49,7 @@ namespace HangmanServer.Controllers.Account
             if (Connections.sessions.ContainsKey(request.connectionID))
             {
                 Session? session = Connections.sessions[request.connectionID];
+                session.RefreshSession();
                 result = RequestHandlers.HandleCreateUser(session, request.username,
                     request.password, request.isPlain.HasValue ? request.isPlain.Value : false);
             }

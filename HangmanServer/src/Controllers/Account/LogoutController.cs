@@ -25,6 +25,8 @@ namespace HangmanServer.Controllers.Account
             Session? session = Connections.FindSessionBySessionID(request.sessionID);
             if (session != null)
             {
+                session.RefreshSession();
+
                 lock (Multiplayer._lock)
                 {
                     Multiplayer.handler.RemoveFromQueue(request.sessionID);

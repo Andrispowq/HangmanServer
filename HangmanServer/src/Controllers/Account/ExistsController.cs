@@ -16,6 +16,7 @@ namespace HangmanServer.Controllers.Account
 
             if (Connections.sessions.ContainsKey(connectionID))
             {
+                Connections.sessions[connectionID].RefreshSession();
                 result.result = RequestHandlers.database.UserExists(username);
             }
             else

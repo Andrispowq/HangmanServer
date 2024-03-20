@@ -31,6 +31,7 @@ namespace HangmanServer.Controllers.Account
             if(toModify != null)
             {
                 User? user = toModify.GetUserData();
+                toModify.RefreshSession();
 
                 if (user == null)
                 {

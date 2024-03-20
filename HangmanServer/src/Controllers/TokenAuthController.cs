@@ -22,7 +22,8 @@ namespace HangmanServer.Controllers
 
             if (Connections.sessions.ContainsKey(request.connectionID))
             {
-                Session session = Connections.sessions[request.connectionID];
+                Session session = Connections.sessions[request.connectionID]; 
+                session.RefreshSession();
                 if (session.GetUserData() == null)
                 {
                     if (Tokens.tokens.ContainsKey(request.tokenID))
