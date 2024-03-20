@@ -25,8 +25,12 @@ namespace HangmanServer
             if (File.Exists(fileName))
             {
                 string json = File.ReadAllText(fileName);
-		Console.WriteLine($"Loading user database {json}");
-                data = JsonSerializer.Deserialize<List<JSONData>>(json)!;
+                Console.WriteLine($"Loading user database {json}");
+
+                if (json != "")
+                {
+                    data = JsonSerializer.Deserialize<List<JSONData>>(json)!;
+                }
             }
 
             string path = Config.GetConfig().serverFolder + "/players";
@@ -52,6 +56,8 @@ namespace HangmanServer
                     break;
                 }
             }
+
+            SaveData();
         }
 
         public bool UserExists(string username)
@@ -121,6 +127,7 @@ namespace HangmanServer
             new_data.password_hash2 = user.password_hash2;
             new_data.encrypted_key = user.encryption_key;
             data.Add(new_data);
+            SaveData();
 
             return true;
         }

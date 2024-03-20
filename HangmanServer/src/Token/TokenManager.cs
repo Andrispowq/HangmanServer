@@ -28,8 +28,16 @@ namespace HangmanServer
             if (File.Exists(path))
             {
                 string json = File.ReadAllText(path);
-		Console.WriteLine($"Tokens json is {json}");
-                tokens = JsonSerializer.Deserialize<List<TokenInfo>>(json)!;
+                Console.WriteLine($"Tokens json is {json}");
+
+                if (json != "")
+                {
+                    tokens = JsonSerializer.Deserialize<List<TokenInfo>>(json)!;
+                }
+                else
+                {
+                    tokens = new List<TokenInfo>();
+                }
             }
             else
             {
