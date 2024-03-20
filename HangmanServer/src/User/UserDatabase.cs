@@ -25,7 +25,7 @@ namespace HangmanServer
             if (File.Exists(fileName))
             {
                 string json = File.ReadAllText(fileName);
-                Console.WriteLine($"Loading user database {json}");
+                //Console.WriteLine($"Loading user database {json}");
 
                 if (json != "")
                 {
