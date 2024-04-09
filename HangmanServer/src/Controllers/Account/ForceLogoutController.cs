@@ -26,7 +26,7 @@ namespace HangmanServer.src.Controllers.Account
                 Session? usersSession = Connections.FindSessionByUsername(request.username);
                 if (usersSession != null)
                 {
-                    if(RequestHandlers.CheckPassword(thisSession, request.username, request.password)) 
+                    if(RequestHandlers.CheckPassword(thisSession, request.username, request.password))
                     {
                         result.result = true;
                         Connections.LogoutByUsername(request.username);
