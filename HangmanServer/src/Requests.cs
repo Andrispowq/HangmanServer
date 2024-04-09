@@ -73,16 +73,21 @@ namespace HangmanServer
         {
             lock (_lock)
             {
+                Console.WriteLine(database.UserExists(username));
                 if (database.UserExists(username))
                 {
                     string password_decrypted = password;
                     if (!plain)
                     {
+                        Console.WriteLine(password);
                         password_decrypted = session.Decrypt(password);
+                        Console.WriteLine(password_decrypted);
                     }
 
                     string pass_try = database.SecurePassword(database.GetUserID(username), password_decrypted);
+                    Console.WriteLine(pass_try);
                     string hash = Crypto.GetHashString(pass_try);
+                    Console.WriteLine(hash);
                     return database.TryLogin(username, hash, out _);
                 }
             }
