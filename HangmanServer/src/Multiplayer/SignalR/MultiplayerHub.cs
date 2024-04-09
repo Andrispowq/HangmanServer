@@ -75,6 +75,37 @@ namespace HangmanServer.src.Multiplayer.SignalR
             }
         }
 
+        public async Task Reconnect(Guid sessionID, Guid matchID)
+        {
+            GameStateResult? result = null;
+            lock (HangmanServer.Multiplayer._lock)
+            {
+                OngoingGame? game = HangmanServer.Multiplayer.handler.GetOngoingGame(matchID);
+                if (game != null)
+                {
+                    if(game.challenger.GetSessionID() == sessionID)
+                    {
+                        game.signalR_challengerID = Context.ConnectionId;
+                        result = HangmanServer.Multiplayer.handler.GetGameState(matchID, true);
+                    }
+                    else if (game.challenged.GetSessionID() == sessionID)
+                    {
+                        game.signalR_challengedID = Context.ConnectionId;
+                        result = HangmanServer.Multiplayer.handler.GetGameState(matchID, false);
+                    }
+                }
+            }
+
+            if(result != null)
+            {
+                await Clients.Caller.SendAsync("MatchUpdated", result);
+            }
+            else
+            {
+                await Clients.Caller.SendAsync("MatchAborted");
+            }
+        }
+
         public async Task Guess(Guid matchID, string guess)
         {
             bool challenger = false;
