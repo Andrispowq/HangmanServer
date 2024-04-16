@@ -110,7 +110,7 @@ namespace HangmanServer
             return null;
         }
 
-        public static void LogoutBySessionID(Guid sessionID)
+        public static bool LogoutBySessionID(Guid sessionID)
         {
             Session? session = FindSessionBySessionID(sessionID);
             if (session != null)
@@ -119,12 +119,15 @@ namespace HangmanServer
                 {
                     users.Remove(session.GetUserData()!.username, out _);
                     sessionIDs.Remove(session.GetSessionID(), out _);
+                    session.LogoutUser();
+                    return true;
                 }
-                session.LogoutUser();
             }
+
+            return false;
         }
 
-        public static void DisconnectBySessionID(Guid sessionID)
+        public static bool DisconnectBySessionID(Guid sessionID)
         {
             Session? session = FindSessionBySessionID(sessionID);
             if (session != null)
@@ -137,10 +140,13 @@ namespace HangmanServer
                     sessionIDs.Remove(session.GetSessionID(), out _);
                 }
                 session.LogoutUser();
+                return true;
             }
+
+            return false;
         }
 
-        public static void DisconnectByConnectionID(Guid connID)
+        public static bool DisconnectByConnectionID(Guid connID)
         {
             if (sessions.ContainsKey(connID))
             {
@@ -153,7 +159,10 @@ namespace HangmanServer
                     sessionIDs.Remove(session.GetSessionID(), out _);
                 }
                 session.LogoutUser();
+                return true;
             }
+
+            return false;
         }
     }
 
