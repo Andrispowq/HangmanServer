@@ -13,22 +13,20 @@ namespace HangmanServer.src.Controllers.Dictionary
             UserWordResult result = new UserWordResult();
             result.result = false;
 
-            if (language == "hu")
+            Session? session = Connections.FindSessionBySessionID(sessionID);
+            if (session != null)
             {
-                Session? session = Connections.FindSessionBySessionID(sessionID);
-                if (session != null)
+                session.RefreshSession();
+                result = RequestHandlers.HandleWordRequest(language);
+
+                if(result.result == false)
                 {
-                    session.RefreshSession();
-                    result = RequestHandlers.HandleWordRequest(language);
-                }
-                else
-                {
-                    result.reason = ErrorReasons.SessionIDNotFound;
+                    result.reason = ErrorReasons.LanguageNotSupported;
                 }
             }
             else
             {
-                result.reason = ErrorReasons.LanguageNotSupported;
+                result.reason = ErrorReasons.SessionIDNotFound;
             }
 
             return Ok(result);
