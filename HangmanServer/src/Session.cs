@@ -9,7 +9,7 @@ namespace HangmanServer
         private Guid connectionID;
         private Guid clientID;
         private RSA rsa;
-        private double timeout;
+        public double timeout { get; private set; }
 
         private Guid sessionID;
         private User? userData;
