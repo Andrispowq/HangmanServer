@@ -16,7 +16,7 @@ namespace HangmanServer
         public Session session;
         public GameType type;
 
-        private double timeout;
+        public double timeout { get; private set; }
         public MultiplayerRequest(Session session, GameType type)
         {
             this.session = session;
