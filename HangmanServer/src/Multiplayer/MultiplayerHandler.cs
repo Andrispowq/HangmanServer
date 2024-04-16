@@ -231,6 +231,9 @@ namespace HangmanServer
         private static ConcurrentDictionary<Guid, OngoingGame> ongoingGames = new(); //matchID to game
         private static ConcurrentDictionary<Guid, MatchData> matchIDs = new(); //matches sessionIDs to matchIDs
 
+        public List<OngoingGame> OngoingGames { get { return ongoingGames.Values.ToList(); } }
+        public List<MultiplayerRequest> WaitingSessions { get { return waitingSessions; } }
+
         public MultiplayerHandler()
         {
         }
