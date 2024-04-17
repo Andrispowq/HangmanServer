@@ -1,5 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using System.Drawing;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace HangmanServer.src.Controllers.Admin
 {
@@ -34,19 +39,13 @@ namespace HangmanServer.src.Controllers.Admin
     public class WebController : Controller
     {
         [HttpGet(Name = "Web")]
-        public IActionResult Web([FromQuery] string password)
+        public IActionResult Web([FromQuery] string token)
         {
-            if(password == null)
+            string result = ValidateToken(token);
+            if(result != "")
             {
-                return BadRequest("No password specified");
+                return Unauthorized(result);
             }
-
-            string hash = "74C1F1D689EA12D3E00B11FAB9519610C0A04BB5E639A5F1DAA95DF9BC129B6C";
-            if (Crypto.GetHashString(password) != hash)
-            {
-                return BadRequest("Bad password");
-            }
-
 
             var htmlContent = @"
             <html>
@@ -111,9 +110,13 @@ namespace HangmanServer.src.Controllers.Admin
                 </body>
                 <script>
                     function DeleteToken(token) {
-                        let pw = encodeURIComponent('" + password + @"')
-                        fetch('DeleteToken/' + token + '?password=' + pw, {
-                            method: 'DELETE'
+                        let bearer = encodeURIComponent('" + token + @"')
+                        fetch('DeleteToken/' + token, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ token: bearer })
                         })
                         .then(response => {
                             alert('Deleted token')
@@ -125,9 +128,13 @@ namespace HangmanServer.src.Controllers.Admin
                     }
 
                     function DeleteSession(session) {
-                        let pw = encodeURIComponent('" + password + @"')
-                        fetch('DeleteSession/' + session + '?password=' + pw, {
-                            method: 'DELETE'
+                        let bearer = encodeURIComponent('"" + token + @""')
+                        fetch('DeleteSession/' + session, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ token: bearer })
                         })
                         .then(response => {
                             alert('Deleted session')
@@ -139,9 +146,13 @@ namespace HangmanServer.src.Controllers.Admin
                     }
 
                     function LogoutSession(session) {
-                        let pw = encodeURIComponent('" + password + @"')
-                        fetch('LogoutSession/' + session + '?password=' + pw, {
-                            method: 'DELETE'
+                        let bearer = encodeURIComponent('"" + token + @""')
+                        fetch('LogoutSession/' + session, {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ token: bearer })
                         })
                         .then(response => {
                             alert('Logged out session')
@@ -155,6 +166,47 @@ namespace HangmanServer.src.Controllers.Admin
             </html>";
 
             return Content(htmlContent, "text/html");
+        }
+
+        public static string ValidateToken(string token)
+        {
+            var validator = new JwtSecurityTokenHandler();
+
+            var secret = System.IO.File.ReadAllText("HangmanServerData/secret/jwt_key");
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
+
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
+
+            ClaimsPrincipal? principal = null;
+            try
+            {
+                principal = validator.ValidateToken(token, tokenValidationParameters, out SecurityToken validatedToken);
+
+                var jwtToken = validatedToken as JwtSecurityToken;
+                var adminClaim = principal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value;
+
+                if (adminClaim != "Admin")
+                {
+                    return "User is not admin";
+                }
+            }
+            catch (SecurityTokenValidationException e)
+            {
+                return e.Message;
+            }
+            catch (ArgumentException e)
+            {
+                return e.Message;
+            }
+
+            return "";
         }
 
         private string GetSessionInfo(ICollection<Session> sessions)

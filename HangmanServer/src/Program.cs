@@ -1,10 +1,13 @@
 
 using HangmanServer.src.Multiplayer.SignalR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using System.Net.WebSockets;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 
 namespace HangmanServer
 {
@@ -20,21 +23,36 @@ namespace HangmanServer
                 return;
             }
 
+            string JWTSecret = File.ReadAllText("HangmanServerData/secret/jwt_key");
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JWTSecret)),
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ClockSkew = TimeSpan.Zero
+                    };
+
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            if (context.Request.Cookies.ContainsKey("AuthCookie"))
+                            {
+                                context.Token = context.Request.Cookies["AuthCookie"];
+                            }
+                            return Task.CompletedTask;
+                        }
+                    };
+                });
+
             builder.Services.AddControllers();
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-
-            /*builder.Services.AddCors(options =>
-            {
-                options.AddPolicy("AllowedOrigins", policy =>
-                {
-                    policy.WithOrigins("http://localhost:8000")
-                                 .AllowAnyMethod()
-                                 .AllowAnyHeader()
-                                 .AllowCredentials();
-                });
-            });*/
 
             builder.Services.AddSignalR();
 
@@ -47,9 +65,8 @@ namespace HangmanServer
             }
 
             app.UseHsts();
-            //app.UseCors("AllowedOrigins");
 
-            //app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
             app.UseAuthorization();
             app.MapControllers();
 

@@ -1,50 +1,59 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace HangmanServer.src.Controllers.Admin
 {
+    public class Bearer
+    {
+        public string token { get; set; } = "";
+    }
 
     [ApiController]
     [Route("api/v1/[controller]")]
     public class AdminController : ControllerBase
     {
         [HttpDelete("DeleteToken/{tokenID}")]
-        public IActionResult DeleteToken(Guid tokenID, [FromQuery] string password)
+        public IActionResult DeleteToken(Guid tokenID, [FromBody] Bearer bearer)
         {
-            string hash = "74C1F1D689EA12D3E00B11FAB9519610C0A04BB5E639A5F1DAA95DF9BC129B6C";
-            if (Crypto.GetHashString(password) == hash)
+            string result = WebController.ValidateToken(bearer.token);
+            if (result == "")
             {
                 Tokens.manager.RemoveToken(tokenID);
                 bool success = Tokens.tokens.Remove(tokenID, out _);
                 return Ok(new { success = success });
             }
 
-            return Ok("Bad password specified");
+            return Redirect("/api/v1/Admin/Auth");
         }
 
         [HttpDelete("DeleteSession/{connID}")]
-        public IActionResult DeleteSession(Guid connID, [FromQuery] string password)
+        public IActionResult DeleteSession(Guid connID, [FromBody] Bearer bearer)
         {
-            string hash = "74C1F1D689EA12D3E00B11FAB9519610C0A04BB5E639A5F1DAA95DF9BC129B6C";
-            if (Crypto.GetHashString(password) == hash)
+            string result = WebController.ValidateToken(bearer.token);
+            if (result == "")
             {
                 bool success = Connections.DisconnectByConnectionID(connID);
                 return Ok(new { success = success });
             }
 
-            return Ok("Bad password specified");
+            return Redirect("/api/v1/Admin/Auth");
         }
 
         [HttpDelete("LogoutSession/{sessionID}")]
-        public IActionResult LogoutSession(Guid sessionID, [FromQuery] string password)
+        public IActionResult LogoutSession(Guid sessionID, [FromBody] Bearer bearer)
         {
-            string hash = "74C1F1D689EA12D3E00B11FAB9519610C0A04BB5E639A5F1DAA95DF9BC129B6C";
-            if (Crypto.GetHashString(password) == hash)
+            string result = WebController.ValidateToken(bearer.token);
+            if (result == "")
             {
                 bool success = Connections.LogoutBySessionID(sessionID);
                 return Ok(new { success = success });
             }
 
-            return Ok("Bad password specified");
+            return Redirect("/api/v1/Admin/Auth");
         }
 
         [HttpGet("Auth")]
@@ -53,15 +62,30 @@ namespace HangmanServer.src.Controllers.Admin
             var htmlContent = @"
             <html>
                 <body>
-                    <form method='get' action='/api/v1/Admin/Web'>
+                    <h1>Admin authentication page</h1>
+                    <p>Enter the admin password below to access the admin panel!</p>
+                    <form method='get' action='/api/v1/Admin/Validate'>
                         <label for='password'>Password:</label>
                         <input type='password' id='password' name='password'>
                         <input type='submit' value='Submit'>
-                    </form>
+                    </form>                    
                 </body>
             </html>";
 
             return Content(htmlContent, "text/html");
+        }
+
+        [HttpGet("Validate")]
+        public IActionResult Validate([FromQuery] string password)
+        {
+            string hash = "74C1F1D689EA12D3E00B11FAB9519610C0A04BB5E639A5F1DAA95DF9BC129B6C";
+            if (Crypto.GetHashString(password) == hash)
+            {
+                var token = GenerateJwtToken();
+                return Redirect($"/api/v1/Admin/Web?token={token}");
+            }
+
+            return Redirect("/api/v1/Admin/Auth");
         }
 
         [HttpGet("Data")]
@@ -80,7 +104,28 @@ namespace HangmanServer.src.Controllers.Admin
                 return Ok(adminData);
             }
 
-            return Ok("Bad password specified");
+            return Unauthorized();
+        }
+
+        private string GenerateJwtToken()
+        {
+            string JWTSecret = System.IO.File.ReadAllText("HangmanServerData/secret/jwt_key");
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JWTSecret));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+                    new Claim(ClaimTypes.Name, "Admin")
+                }),
+                Expires = DateTime.UtcNow.AddHours(1),
+                SigningCredentials = credentials
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
 
         private IEnumerable<SessionInfo> GetSessionInfo(ICollection<Session> sessions)
