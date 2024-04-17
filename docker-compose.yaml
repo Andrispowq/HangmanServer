@@ -11,7 +11,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ~/HangmanServerData:/app/HangmanServerData:rw
+      - ./HangmanServerData:/app/HangmanServerData:rw
       - /opt/docker/certbot/certs:/opt/docker/certbot/certs:ro
     environment:
       - ASPNETCORE_URLS=https://+;http://+
