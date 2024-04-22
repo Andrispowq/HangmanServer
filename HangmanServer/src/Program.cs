@@ -23,6 +23,16 @@ namespace HangmanServer
                 return;
             }
 
+            if(!Directory.Exists("HangmanServerData/secret"))
+            {
+                Directory.CreateDirectory("HangmanServerData/secret");
+            }
+            if(!File.Exists("HangmanServerData/secret/jwt_key"))
+            {
+                string secret = Utils.GenerateEncryptionKey();
+                File.WriteAllText("HangmanServerData/secret/jwt_key", secret);
+            }
+
             string JWTSecret = File.ReadAllText("HangmanServerData/secret/jwt_key");
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
