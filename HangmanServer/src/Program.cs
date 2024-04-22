@@ -75,7 +75,7 @@ namespace HangmanServer
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
+//            app.UseHttpsRedirection();
             app.UseHsts();
 
             app.UseAuthorization();
