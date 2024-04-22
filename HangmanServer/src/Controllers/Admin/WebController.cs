@@ -44,7 +44,8 @@ namespace HangmanServer.src.Controllers.Admin
             string result = ValidateToken(token);
             if(result != "")
             {
-                return Unauthorized(result);
+                string reason = Convert.ToBase64String(Encoding.UTF8.GetBytes(result));
+                return Redirect($"/api/v1/Admin/Auth?reason={reason}");
             }
 
             var htmlContent = @"

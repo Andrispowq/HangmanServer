@@ -27,7 +27,8 @@ namespace HangmanServer.src.Controllers.Admin
                 return Ok(new { success = success });
             }
 
-            return Redirect("/api/v1/Admin/Auth");
+            string reason = Convert.ToBase64String(Encoding.UTF8.GetBytes(result));
+            return Redirect($"/api/v1/Admin/Auth?reason={reason}");
         }
 
         [HttpDelete("DeleteSession/{connID}")]
@@ -40,7 +41,8 @@ namespace HangmanServer.src.Controllers.Admin
                 return Ok(new { success = success });
             }
 
-            return Redirect("/api/v1/Admin/Auth");
+            string reason = Convert.ToBase64String(Encoding.UTF8.GetBytes(result));
+            return Redirect($"/api/v1/Admin/Auth?reason={reason}");
         }
 
         [HttpDelete("LogoutSession/{sessionID}")]
@@ -53,17 +55,25 @@ namespace HangmanServer.src.Controllers.Admin
                 return Ok(new { success = success });
             }
 
-            return Redirect("/api/v1/Admin/Auth");
+            string reason = Convert.ToBase64String(Encoding.UTF8.GetBytes(result));
+            return Redirect($"/api/v1/Admin/Auth?reason={reason}");
         }
 
         [HttpGet("Auth")]
-        public IActionResult Auth()
+        public IActionResult Auth([FromQuery] string? reason)
         {
             var htmlContent = @"
             <html>
                 <body>
-                    <h1>Admin authentication page</h1>
-                    <p>Enter the admin password below to access the admin panel!</p>
+                    <h1>Admin authentication page</h1>";
+
+            if (reason != null)
+            {
+                string decodedReason = Encoding.UTF8.GetString(Convert.FromBase64String(reason));
+                htmlContent += $"<p>You were redirected because: {decodedReason}</p>";
+            }
+
+            htmlContent += @"<p>Enter the admin password below to access the admin panel!</p>
                     <form method='get' action='/api/v1/Admin/Validate'>
                         <label for='password'>Password:</label>
                         <input type='password' id='password' name='password'>
@@ -76,16 +86,25 @@ namespace HangmanServer.src.Controllers.Admin
         }
 
         [HttpGet("Validate")]
-        public IActionResult Validate([FromQuery] string password)
+        public IActionResult Validate([FromQuery] string? password)
         {
+            if(password == null)
+            {
+                string reason = Convert.ToBase64String(Encoding.UTF8.GetBytes("The password field was empty"));
+                return Redirect($"/api/v1/Admin/Auth?reason={reason}");
+            }
+
             string hash = "74C1F1D689EA12D3E00B11FAB9519610C0A04BB5E639A5F1DAA95DF9BC129B6C";
             if (Crypto.GetHashString(password) == hash)
             {
                 var token = GenerateJwtToken();
                 return Redirect($"/api/v1/Admin/Web?token={token}");
             }
-
-            return Redirect("/api/v1/Admin/Auth");
+            else
+            {
+                string reason = Convert.ToBase64String(Encoding.UTF8.GetBytes("The password provided was wrong"));
+                return Redirect($"/api/v1/Admin/Auth?reason={reason}");
+            }
         }
 
         [HttpGet("Data")]
