@@ -35,19 +35,13 @@ namespace HangmanServer.src.Controllers.Admin
         public List<string> games { get; set; }
     }
 
+    [Authorize]
     [Route("api/v1/Admin/[controller]")]
     public class WebController : Controller
     {
         [HttpGet(Name = "Web")]
-        public IActionResult Web([FromQuery] string token)
+        public IActionResult Web()
         {
-            string result = ValidateToken(token);
-            if(result != "")
-            {
-                string reason = Convert.ToBase64String(Encoding.UTF8.GetBytes(result));
-                return Redirect($"/api/v1/Admin/Auth?reason={reason}");
-            }
-
             var htmlContent = @"
             <html>
                <head>
@@ -111,13 +105,8 @@ namespace HangmanServer.src.Controllers.Admin
                 </body>
                 <script>
                     function DeleteToken(token) {
-                        let bearer = encodeURIComponent('" + token + @"')
                         fetch('DeleteToken/' + token, {
-                            method: 'DELETE',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ token: bearer })
+                            method: 'DELETE'
                         })
                         .then(response => {
                             alert('Deleted token')
@@ -129,13 +118,8 @@ namespace HangmanServer.src.Controllers.Admin
                     }
 
                     function DeleteSession(session) {
-                        let bearer = encodeURIComponent('"" + token + @""')
                         fetch('DeleteSession/' + session, {
-                            method: 'DELETE',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ token: bearer })
+                            method: 'DELETE'
                         })
                         .then(response => {
                             alert('Deleted session')
@@ -147,13 +131,8 @@ namespace HangmanServer.src.Controllers.Admin
                     }
 
                     function LogoutSession(session) {
-                        let bearer = encodeURIComponent('"" + token + @""')
                         fetch('LogoutSession/' + session, {
-                            method: 'DELETE',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ token: bearer })
+                            method: 'DELETE'
                         })
                         .then(response => {
                             alert('Logged out session')
@@ -191,7 +170,7 @@ namespace HangmanServer.src.Controllers.Admin
                 principal = validator.ValidateToken(token, tokenValidationParameters, out SecurityToken validatedToken);
 
                 var jwtToken = validatedToken as JwtSecurityToken;
-                var adminClaim = principal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value;
+                var adminClaim = principal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Role)?.Value;
 
                 if (adminClaim != "Admin")
                 {

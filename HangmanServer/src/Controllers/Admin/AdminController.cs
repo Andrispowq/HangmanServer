@@ -4,59 +4,37 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 
 namespace HangmanServer.src.Controllers.Admin
 {
-    public class Bearer
-    {
-        public string token { get; set; } = "";
-    }
-
     [ApiController]
     [Route("api/v1/[controller]")]
     public class AdminController : ControllerBase
     {
+        [Authorize]
         [HttpDelete("DeleteToken/{tokenID}")]
-        public IActionResult DeleteToken(Guid tokenID, [FromBody] Bearer bearer)
+        public IActionResult DeleteToken(Guid tokenID)
         {
-            string result = WebController.ValidateToken(bearer.token);
-            if (result == "")
-            {
-                Tokens.manager.RemoveToken(tokenID);
-                bool success = Tokens.tokens.Remove(tokenID, out _);
-                return Ok(new { success = success });
-            }
-
-            string reason = Convert.ToBase64String(Encoding.UTF8.GetBytes(result));
-            return Redirect($"/api/v1/Admin/Auth?reason={reason}");
+            Tokens.manager.RemoveToken(tokenID);
+            bool success = Tokens.tokens.Remove(tokenID, out _);
+            return Ok(new { success = success });
         }
 
+        [Authorize]
         [HttpDelete("DeleteSession/{connID}")]
-        public IActionResult DeleteSession(Guid connID, [FromBody] Bearer bearer)
+        public IActionResult DeleteSession(Guid connID)
         {
-            string result = WebController.ValidateToken(bearer.token);
-            if (result == "")
-            {
-                bool success = Connections.DisconnectByConnectionID(connID);
-                return Ok(new { success = success });
-            }
-
-            string reason = Convert.ToBase64String(Encoding.UTF8.GetBytes(result));
-            return Redirect($"/api/v1/Admin/Auth?reason={reason}");
+            bool success = Connections.DisconnectByConnectionID(connID);
+            return Ok(new { success = success });
         }
 
+        [Authorize]
         [HttpDelete("LogoutSession/{sessionID}")]
-        public IActionResult LogoutSession(Guid sessionID, [FromBody] Bearer bearer)
+        public IActionResult LogoutSession(Guid sessionID)
         {
-            string result = WebController.ValidateToken(bearer.token);
-            if (result == "")
-            {
-                bool success = Connections.LogoutBySessionID(sessionID);
-                return Ok(new { success = success });
-            }
-
-            string reason = Convert.ToBase64String(Encoding.UTF8.GetBytes(result));
-            return Redirect($"/api/v1/Admin/Auth?reason={reason}");
+            bool success = Connections.LogoutBySessionID(sessionID);
+            return Ok(new { success = success });
         }
 
         [HttpGet("Auth")]
@@ -69,11 +47,19 @@ namespace HangmanServer.src.Controllers.Admin
 
             if (reason != null)
             {
-                string decodedReason = Encoding.UTF8.GetString(Convert.FromBase64String(reason));
-                htmlContent += $"<p>You were redirected because: {decodedReason}</p>";
+                try
+                {
+                    string decodedReason = Encoding.UTF8.GetString(Convert.FromBase64String(reason));
+                    htmlContent += $"<p>You were redirected because: {decodedReason}</p>";
+                }
+                catch(Exception ex)
+                {
+                    htmlContent += $"<p>Error decoding redirection reason: {ex.Message}</p>";
+                }
             }
 
-            htmlContent += @"<p>Enter the admin password below to access the admin panel!</p>
+            htmlContent += @"
+                    <p>Enter the admin password below to access the admin panel!</p>
                     <form method='get' action='/api/v1/Admin/Validate'>
                         <label for='password'>Password:</label>
                         <input type='password' id='password' name='password'>
@@ -98,7 +84,17 @@ namespace HangmanServer.src.Controllers.Admin
             if (Crypto.GetHashString(password) == hash)
             {
                 var token = GenerateJwtToken();
-                return Redirect($"/api/v1/Admin/Web?token={token}");
+
+                var cookieOptions = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict
+                };
+
+                Response.Cookies.Append("AuthToken", token, cookieOptions);
+
+                return Redirect($"/api/v1/Admin/Web");
             }
             else
             {
@@ -136,7 +132,7 @@ namespace HangmanServer.src.Controllers.Admin
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, "Admin")
+                    new Claim(ClaimTypes.Role, "Admin")
                 }),
                 Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = credentials
