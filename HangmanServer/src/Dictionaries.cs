@@ -45,7 +45,6 @@ namespace HangmanServer
             }
 
             Console.WriteLine(String.Join(", ", languages));
-
             return LoadLanguage(DefaultLanguage);
         }
 

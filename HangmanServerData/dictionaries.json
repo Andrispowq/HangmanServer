@@ -1,0 +1,10 @@
+[
+    {
+        "language": "hu",
+        "location": "dict-hu.txt"
+    },
+    {
+        "language": "en",
+        "location": "dict-en.txt"
+    }
+]
