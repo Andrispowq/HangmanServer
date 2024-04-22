@@ -50,9 +50,9 @@ namespace HangmanServer
                     {
                         OnMessageReceived = context =>
                         {
-                            if (context.Request.Cookies.ContainsKey("AuthCookie"))
+                            if (context.Request.Cookies.ContainsKey("AuthToken"))
                             {
-                                context.Token = context.Request.Cookies["AuthCookie"];
+                                context.Token = context.Request.Cookies["AuthToken"];
                             }
                             return Task.CompletedTask;
                         }
@@ -70,16 +70,23 @@ namespace HangmanServer
 
             if (app.Environment.IsDevelopment())
             {
+                app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
 
+            app.UseHttpsRedirection();
             app.UseHsts();
 
-//            app.UseHttpsRedirection();
             app.UseAuthorization();
             app.MapControllers();
 
+            app.UseStaticFiles();
+
+            app.UseRouting();
+            app.UseAuthorization();
+
+            app.MapControllers();
             app.MapHub<MultiplayerHub>("api/v1/MultiplayerHub");
 
             Task.Run(Server.UpdateThread);
