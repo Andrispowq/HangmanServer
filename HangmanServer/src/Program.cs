@@ -42,6 +42,8 @@ namespace HangmanServer
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JWTSecret)),
                         ValidateIssuer = false,
+                        //ValidateIssuer = true,
+                        //ValidIssuer = "https://hangman.mptrdev.com",
                         ValidateAudience = false,
                         ClockSkew = TimeSpan.Zero
                     };
@@ -75,7 +77,6 @@ namespace HangmanServer
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
             app.UseHsts();
 
             app.UseStaticFiles();
