@@ -79,6 +79,9 @@ namespace HangmanServer
 
             app.UseHsts();
 
+            app.UseAuthorization();
+            app.MapControllers();
+
             app.UseStaticFiles();
 
             app.UseRouting();
