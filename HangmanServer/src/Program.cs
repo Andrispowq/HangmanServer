@@ -23,6 +23,10 @@ namespace HangmanServer
                 return;
             }
 
+            if(!Directory.Exists("HangmanServerData/secret"))
+            {
+                Directory.CreateDirectory("HangmanServerData/secret");
+            }
             if(!File.Exists("HangmanServerData/secret/jwt_key"))
             {
                 string secret = Utils.GenerateEncryptionKey();
