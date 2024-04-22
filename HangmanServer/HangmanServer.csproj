@@ -18,6 +18,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="HangmanServerData\secret\" />
+    <Folder Include="wwwroot\" />
   </ItemGroup>
 
 </Project>
