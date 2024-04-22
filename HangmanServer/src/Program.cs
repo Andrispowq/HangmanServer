@@ -66,7 +66,7 @@ namespace HangmanServer
 
             app.UseHsts();
 
-            app.UseHttpsRedirection();
+//            app.UseHttpsRedirection();
             app.UseAuthorization();
             app.MapControllers();
 
