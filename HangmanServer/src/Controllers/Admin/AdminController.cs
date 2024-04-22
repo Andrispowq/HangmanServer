@@ -135,7 +135,8 @@ namespace HangmanServer.src.Controllers.Admin
                     new Claim(ClaimTypes.Role, "Admin")
                 }),
                 Expires = DateTime.UtcNow.AddHours(1),
-                SigningCredentials = credentials
+                SigningCredentials = credentials,
+                Issuer = "https://hangman.mptrdev.com"
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
