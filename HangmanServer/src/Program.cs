@@ -23,6 +23,12 @@ namespace HangmanServer
                 return;
             }
 
+            if(!File.Exists("HangmanServerData/secret/jwt_key"))
+            {
+                string secret = Utils.GenerateEncryptionKey();
+                File.WriteAllText("HangmanServerData/secret/jwt_key", secret);
+            }
+
             string JWTSecret = File.ReadAllText("HangmanServerData/secret/jwt_key");
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>

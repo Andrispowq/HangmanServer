@@ -68,7 +68,7 @@ namespace HangmanServer.src.Controllers.Admin
                         <label for='password'>Password:</label>
                         <input type='password' id='password' name='password'>
                         <input type='submit' value='Submit'>
-                    </form>                    
+                    </form>
                 </body>
             </html>";
 
