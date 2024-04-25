@@ -1,11 +1,13 @@
 
 using HangmanServer.src.Multiplayer.SignalR;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Net.WebSockets;
+using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
@@ -51,14 +53,19 @@ namespace HangmanServer
                     {
                         OnMessageReceived = context =>
                         {
-                            if (context.Request.Cookies.ContainsKey("AuthToken"))
+                            if (context.Request.Cookies.ContainsKey("_HangmanAuthCookie"))
                             {
-                                context.Token = context.Request.Cookies["AuthToken"];
+                                context.Token = context.Request.Cookies["_HangmanAuthCookie"];
                             }
                             return Task.CompletedTask;
                         }
                     };
                 });
+
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("IsAdmin", policy => policy.RequireClaim(ClaimTypes.Role, "Admin"));
+            });
 
             builder.Services.AddControllers();
 
@@ -78,12 +85,13 @@ namespace HangmanServer
 
             app.UseHsts();
 
-            app.UseAuthorization();
             app.MapControllers();
 
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();

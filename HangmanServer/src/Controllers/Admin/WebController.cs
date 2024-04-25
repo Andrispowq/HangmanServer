@@ -35,10 +35,11 @@ namespace HangmanServer.src.Controllers.Admin
         public List<string> games { get; set; }
     }
 
-    [Authorize]
+    [ApiController]
     [Route("api/v1/Admin/[controller]")]
     public class WebController : Controller
     {
+        [Authorize(Policy = "IsAdmin")]
         [HttpGet(Name = "Web")]
         public IActionResult Web()
         {

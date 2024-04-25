@@ -4,37 +4,37 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Text.Json;
 
 namespace HangmanServer.src.Controllers.Admin
 {
+
     [ApiController]
     [Route("api/v1/[controller]")]
     public class AdminController : ControllerBase
     {
-        [Authorize]
+        [Authorize(Policy = "IsAdmin")]
         [HttpDelete("DeleteToken/{tokenID}")]
         public IActionResult DeleteToken(Guid tokenID)
         {
             Tokens.manager.RemoveToken(tokenID);
             bool success = Tokens.tokens.Remove(tokenID, out _);
-            return Ok(new { success = success });
+            return Ok(new { success });
         }
 
-        [Authorize]
+        [Authorize(Policy = "IsAdmin")]
         [HttpDelete("DeleteSession/{connID}")]
         public IActionResult DeleteSession(Guid connID)
         {
             bool success = Connections.DisconnectByConnectionID(connID);
-            return Ok(new { success = success });
+            return Ok(new { success });
         }
 
-        [Authorize]
+        [Authorize(Policy = "IsAdmin")]
         [HttpDelete("LogoutSession/{sessionID}")]
         public IActionResult LogoutSession(Guid sessionID)
         {
             bool success = Connections.LogoutBySessionID(sessionID);
-            return Ok(new { success = success });
+            return Ok(new { success });
         }
 
         [HttpGet("Auth")]
@@ -60,7 +60,7 @@ namespace HangmanServer.src.Controllers.Admin
 
             htmlContent += @"
                     <p>Enter the admin password below to access the admin panel!</p>
-                    <form method='get' action='/api/v1/Admin/Validate'>
+                    <form method='post' action='/api/v1/Admin/Validate'>
                         <label for='password'>Password:</label>
                         <input type='password' id='password' name='password'>
                         <input type='submit' value='Submit'>
@@ -71,8 +71,8 @@ namespace HangmanServer.src.Controllers.Admin
             return Content(htmlContent, "text/html");
         }
 
-        [HttpGet("Validate")]
-        public IActionResult Validate([FromQuery] string? password)
+        [HttpPost("Validate")]
+        public IActionResult Validate([FromForm] string? password)
         {
             if(password == null)
             {
@@ -84,12 +84,16 @@ namespace HangmanServer.src.Controllers.Admin
             if (Crypto.GetHashString(password) == hash)
             {
                 var token = GenerateJwtToken();
+                Console.WriteLine($"Token is {token}");
 
                 var cookieOptions = new CookieOptions
                 {
                     HttpOnly = true,
                     Secure = true,
-                    SameSite = SameSiteMode.Strict
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTime.UtcNow.AddHours(1),
+                    Domain = "https://hangman.mptrdev.com",
+                    IsEssential = true
                 };
 
                 Response.Cookies.Append("AuthToken", token, cookieOptions);
@@ -132,11 +136,13 @@ namespace HangmanServer.src.Controllers.Admin
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Role, "Admin")
+                    new Claim(ClaimTypes.Role, "Admin"),
+                    new Claim("_HangmanClaimRole", "Admin"),
+                    new Claim("_HangmanClaimAdmin", "true")
                 }),
                 Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = credentials,
-                Issuer = "https://hangman.mptrdev.com"
+                Issuer = "https://hangman.mptrdev.com",
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
