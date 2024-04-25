@@ -328,7 +328,7 @@ namespace HangmanServer
             MultiplayerRequest? joined = null;
             foreach (var session in waitingSessions)
             {
-                if (session.type == request.type)
+                if (session.type == request.type && session.session.language == request.session.language)
                 {
                     joined = session;
                 }
