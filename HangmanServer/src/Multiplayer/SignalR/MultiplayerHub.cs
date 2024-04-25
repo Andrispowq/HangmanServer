@@ -8,7 +8,7 @@ namespace HangmanServer.src.Multiplayer.SignalR
 {
     class MultiplayerHub : Hub
     {
-        public async Task<string> Join(Guid sessionID, GameType gameType)
+        public async Task<string> Join(Guid sessionID, GameType gameType, string? language)
         {
             string currentUserId = Context.ConnectionId;
 
@@ -16,6 +16,11 @@ namespace HangmanServer.src.Multiplayer.SignalR
             if (session == null)
             {
                 return "SessionID not found!";
+            }
+
+            if(language != null && Dictionaries.GetWord(language) != "")
+            {
+                session.language = language;
             }
 
             var joinRequest = new MultiplayerRequest(session, gameType);

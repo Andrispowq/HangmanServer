@@ -6,7 +6,7 @@ namespace HangmanServer
     {
         internal class PlayerState
         {
-            public static int DefaultWords = 2; //TODO: 5
+            public static int DefaultWords = 3;
             public int guessedWords = 0;
             public int wrongGuesses = 0;
             public string word = "";
