@@ -53,19 +53,14 @@ namespace HangmanServer
                     {
                         OnMessageReceived = context =>
                         {
-                            if (context.Request.Cookies.ContainsKey("_HangmanAuthCookie"))
+                            if (context.Request.Cookies.ContainsKey("AuthToken"))
                             {
-                                context.Token = context.Request.Cookies["_HangmanAuthCookie"];
+                                context.Token = context.Request.Cookies["AuthToken"];
                             }
                             return Task.CompletedTask;
                         }
                     };
                 });
-
-            builder.Services.AddAuthorization(options =>
-            {
-                options.AddPolicy("IsAdmin", policy => policy.RequireClaim(ClaimTypes.Role, "Admin"));
-            });
 
             builder.Services.AddControllers();
 

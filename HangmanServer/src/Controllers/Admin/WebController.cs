@@ -39,7 +39,7 @@ namespace HangmanServer.src.Controllers.Admin
     [Route("api/v1/Admin/[controller]")]
     public class WebController : Controller
     {
-        [Authorize(Policy = "IsAdmin")]
+        [Authorize]
         [HttpGet(Name = "Web")]
         public IActionResult Web()
         {

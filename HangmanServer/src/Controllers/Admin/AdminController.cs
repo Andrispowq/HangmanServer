@@ -12,7 +12,7 @@ namespace HangmanServer.src.Controllers.Admin
     [Route("api/v1/[controller]")]
     public class AdminController : ControllerBase
     {
-        [Authorize(Policy = "IsAdmin")]
+        [Authorize]
         [HttpDelete("DeleteToken/{tokenID}")]
         public IActionResult DeleteToken(Guid tokenID)
         {
@@ -21,7 +21,7 @@ namespace HangmanServer.src.Controllers.Admin
             return Ok(new { success });
         }
 
-        [Authorize(Policy = "IsAdmin")]
+        [Authorize]
         [HttpDelete("DeleteSession/{connID}")]
         public IActionResult DeleteSession(Guid connID)
         {
@@ -29,7 +29,7 @@ namespace HangmanServer.src.Controllers.Admin
             return Ok(new { success });
         }
 
-        [Authorize(Policy = "IsAdmin")]
+        [Authorize]
         [HttpDelete("LogoutSession/{sessionID}")]
         public IActionResult LogoutSession(Guid sessionID)
         {
@@ -84,16 +84,13 @@ namespace HangmanServer.src.Controllers.Admin
             if (Crypto.GetHashString(password) == hash)
             {
                 var token = GenerateJwtToken();
-                Console.WriteLine($"Token is {token}");
 
                 var cookieOptions = new CookieOptions
                 {
                     HttpOnly = true,
                     Secure = true,
                     SameSite = SameSiteMode.Strict,
-                    Expires = DateTime.UtcNow.AddHours(1),
-                    Domain = "https://hangman.mptrdev.com",
-                    IsEssential = true
+                    Expires = DateTime.UtcNow.AddHours(1)
                 };
 
                 Response.Cookies.Append("AuthToken", token, cookieOptions);
@@ -136,9 +133,7 @@ namespace HangmanServer.src.Controllers.Admin
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Role, "Admin"),
-                    new Claim("_HangmanClaimRole", "Admin"),
-                    new Claim("_HangmanClaimAdmin", "true")
+                    new Claim(ClaimTypes.Role, "Admin")
                 }),
                 Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = credentials,
