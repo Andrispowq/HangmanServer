@@ -93,7 +93,7 @@ namespace HangmanServer
             app.MapHub<MultiplayerHub>("api/v1/MultiplayerHub");
 
             Task.Run(Server.UpdateThread);
-            Task.Run(Server.CommandThread);
+            //Task.Run(Server.CommandThread);
 
             app.Run();
         }

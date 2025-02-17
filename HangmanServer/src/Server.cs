@@ -202,7 +202,7 @@ namespace HangmanServer
             return true;
         }
 
-        public static void UpdateThread()
+        public static async void UpdateThread()
         {
             var then = DateTime.UtcNow;
             while (true)
@@ -222,7 +222,8 @@ namespace HangmanServer
                 {
                     break;
                 }
-                Task.Run(() =>
+
+                await Task.Run(() =>
                 {
                     lock (Multiplayer._lock)
                     {
@@ -267,6 +268,8 @@ namespace HangmanServer
                 {
                     Console.Write("> ");
                 }
+
+                await Task.Delay(100);
             }
         }
 
